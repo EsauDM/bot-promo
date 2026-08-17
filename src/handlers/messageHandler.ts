@@ -17,11 +17,17 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
     // Pega os últimos 8 dígitos para ignorar a bagunça do 9º dígito no Brasil
     const adminFinal8 = adminNumber.slice(-8);
 
+    // Helper para limpar o JID do WhatsApp (remove @s.whatsapp.net e remove o :ID do aparelho)
+    const cleanNumber = (jid: string) => {
+        const cleanJid = jid.split('@')[0].split(':')[0];
+        return cleanJid.replace(/\D/g, '');
+    };
+
     // Se for grupo, verifica se fomos adicionados
     if (sender.endsWith('@g.us')) {
         // Em grupos, quem enviou a mensagem está em msg.key.participant
         const participant = msg.key.participant || msg.participant || '';
-        const participantRoot = participant.replace(/\D/g, '');
+        const participantRoot = cleanNumber(participant);
 
         // Comando para registrar grupo
         if (textMessage.trim() === '!registrar') {
@@ -37,7 +43,7 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
     }
 
     // Comandos de Administrador (no privado do Bot)
-    const senderRoot = sender.replace(/\D/g, '');
+    const senderRoot = cleanNumber(sender);
     if (senderRoot.endsWith(adminFinal8)) {
         if (textMessage.trim().startsWith('!oferta')) {
             const link = extractLink(textMessage);
