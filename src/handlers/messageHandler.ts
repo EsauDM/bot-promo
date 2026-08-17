@@ -31,6 +31,10 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
 
         // Comando para registrar grupo
         if (textMessage.trim() === '!registrar') {
+             console.log("=== DEBUG MENSAGEM !REGISTRAR ===");
+             console.log(JSON.stringify(msg, null, 2));
+             console.log("=================================");
+             
              if (participantRoot.endsWith(adminFinal8)) {
                  const groupMetadata = await sock.groupMetadata(sender);
                  await addGroup(sender, groupMetadata.subject);
