@@ -58,6 +58,11 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
     // Comandos de Administrador (no privado do Bot)
     const senderRoot = cleanNumber(sender);
     if (senderRoot.endsWith(adminFinal8)) {
+        console.log("================ DEBUG ADMIN MESSAGE ================");
+        console.log(JSON.stringify(msg.message, null, 2));
+        console.log("Extracted textMessage:", textMessage);
+        console.log("=====================================================");
+
         if (textMessage.trim().startsWith('!oferta')) {
             const link = extractLink(textMessage);
             if (!link) {
