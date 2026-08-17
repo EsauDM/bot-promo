@@ -31,27 +31,50 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
         } catch(e) {}
     } else if (originalLink.includes('aliexpress.com') || originalLink.includes('ali.ski')) {
         try {
-            const aliExpressShortKey = process.env.ALIEXPRESS_KEY || '_c39LG19l';
+            const aliExpressAppKey = process.env.ALIEXPRESS_APP_KEY;
+            const aliExpressAppSecret = process.env.ALIEXPRESS_APP_SECRET;
+            const aliExpressTrackingId = process.env.ALIEXPRESS_TRACKING_ID;
+
             let targetUrl = originalLink;
             
-            // Desencurta o link para pegar o URL real do produto
+            // Desencurta o link
             if (originalLink.includes('/e/') || originalLink.includes('a.aliexpress.com') || originalLink.includes('s.click.aliexpress.com') || originalLink.includes('ali.ski')) {
                 const response = await fetch(originalLink, { redirect: 'manual' });
                 targetUrl = response.headers.get('location') || originalLink;
-                
-                // Trata duplo redirect que às vezes acontece
                 if (targetUrl.includes('/e/') || targetUrl.includes('a.aliexpress.com') || targetUrl.includes('s.click.aliexpress.com')) {
                     const response2 = await fetch(targetUrl, { redirect: 'manual' });
                     targetUrl = response2.headers.get('location') || targetUrl;
                 }
             }
 
-            // Remove todos os parâmetros de comissão do dono do grupo
             const urlObj = new URL(targetUrl);
             const cleanTargetUrl = urlObj.origin + urlObj.pathname; 
 
-            // Monta o seu link comissionado
-            affiliateLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${aliExpressShortKey}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
+            // Se o usuário já configurou a API
+            if (aliExpressAppKey && aliExpressAppSecret && aliExpressTrackingId) {
+                const { AffiliateClient } = require('ae_sdk');
+                const client = new AffiliateClient({
+                    app_key: aliExpressAppKey,
+                    app_secret: aliExpressAppSecret
+                });
+
+                const res = await client.execute('aliexpress.affiliate.link.generate', {
+                    promotion_link_type: 0,
+                    source_values: cleanTargetUrl,
+                    tracking_id: aliExpressTrackingId
+                });
+
+                if (res.ok && res.data?.aliexpress_affiliate_link_generate_response?.resp_result?.result?.promotion_links?.[0]?.promotion_link) {
+                    affiliateLink = res.data.aliexpress_affiliate_link_generate_response.resp_result.result.promotion_links[0].promotion_link;
+                } else {
+                    console.error('Erro na API do AliExpress:', res);
+                    // Fallback para deep link caso a API falhe
+                    affiliateLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
+                }
+            } else {
+                // Fallback para deep link caso ainda não tenha as chaves na ENV
+                affiliateLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
+            }
         } catch (e) {
             console.error('Erro na conversão do AliExpress:', e);
         }
