@@ -1,6 +1,6 @@
 import { getActiveGroups } from '../database/groupRepository';
 import { generateAffiliateMessage } from './affiliateService';
-import { db } from '../database/db';
+import { getDb } from '../database/db';
 
 const TELEGRAM_CHANNEL = 'https://t.me/s/nerdofertas'; // Canal público de promoções nerd/tech
 
@@ -54,38 +54,43 @@ async function checkAndSendPromo(socket: any) {
         // Pega a última (a mais recente do canal de Telegram)
         const latestPromo = promos[promos.length - 1];
 
+        const db = await getDb();
+
         // Verifica se já enviamos essa promoção hoje
-        db.get('SELECT link FROM sent_promos WHERE link = ?', [latestPromo.link], async (err, row) => {
-            if (err) {
-                // Tabela pode não existir ainda, vamos ignorar na primeira vez
-            }
+        try {
+            const row = await db.get('SELECT link FROM sent_promos WHERE link = ?', [latestPromo.link]);
+            
             if (row) {
                 console.log('⏳ [AutoPromo] A última promoção já foi enviada. Aguardando a próxima.');
                 return;
             }
+        } catch (err) {
+            console.error('Erro ao buscar no DB:', err);
+        }
 
-            // Não foi enviada, então vamos enviar!
-            const promoMessage = await generateAffiliateMessage(latestPromo.link, latestPromo.title, latestPromo.price);
-            const activeGroups = await getActiveGroups();
+        // Não foi enviada, então vamos enviar!
+        const promoMessage = await generateAffiliateMessage(latestPromo.link, latestPromo.title, latestPromo.price);
+        const activeGroups = await getActiveGroups();
 
-            if (activeGroups.length === 0) return;
+        if (activeGroups.length === 0) return;
 
-            console.log(`🚀 [AutoPromo] Disparando nova oferta: ${latestPromo.title}`);
-            
-            for (const groupId of activeGroups) {
-                try {
-                    await socket.sendMessage(groupId, { text: promoMessage });
-                    await new Promise(resolve => setTimeout(resolve, 3000)); // Delay anti-ban
-                } catch (e) {
-                    console.error(`Erro ao enviar promo auto para ${groupId}`);
-                }
+        console.log(`🚀 [AutoPromo] Disparando nova oferta: ${latestPromo.title}`);
+        
+        for (const groupId of activeGroups) {
+            try {
+                await socket.sendMessage(groupId, { text: promoMessage });
+                await new Promise(resolve => setTimeout(resolve, 3000)); // Delay anti-ban
+            } catch (e) {
+                console.error(`Erro ao enviar promo auto para ${groupId}`);
             }
+        }
 
-            // Salva no banco que enviamos
-            db.run('INSERT INTO sent_promos (link) VALUES (?)', [latestPromo.link], (err2) => {
-                if (err2) console.error('Falha ao salvar promo no BD', err2);
-            });
-        });
+        // Salva no banco que enviamos
+        try {
+            await db.run('INSERT INTO sent_promos (link) VALUES (?)', [latestPromo.link]);
+        } catch (err2) {
+            console.error('Falha ao salvar promo no BD', err2);
+        }
 
     } catch (error) {
         console.error('❌ [AutoPromo] Erro ao buscar ofertas:', error);
