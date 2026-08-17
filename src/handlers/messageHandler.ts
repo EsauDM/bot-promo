@@ -57,12 +57,10 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
 
     // Comandos de Administrador (no privado do Bot)
     const senderRoot = cleanNumber(sender);
-    if (senderRoot.endsWith(adminFinal8)) {
-        console.log("================ DEBUG ADMIN MESSAGE ================");
-        console.log(JSON.stringify(msg.message, null, 2));
-        console.log("Extracted textMessage:", textMessage);
-        console.log("=====================================================");
+    // Adicionamos a LID específica do Admin que o WhatsApp estava ocultando
+    const isLidAdmin = senderRoot === '17858625069213';
 
+    if (senderRoot.endsWith(adminFinal8) || isLidAdmin) {
         if (textMessage.trim().startsWith('!oferta')) {
             const link = extractLink(textMessage);
             if (!link) {
