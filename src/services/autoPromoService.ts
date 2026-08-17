@@ -81,7 +81,7 @@ async function checkAndSendPromo(socket: any) {
                 await socket.sendMessage(groupId, { text: promoMessage });
                 await new Promise(resolve => setTimeout(resolve, 3000)); // Delay anti-ban
             } catch (e) {
-                console.error(`Erro ao enviar promo auto para ${groupId}`);
+                console.error(`Erro ao enviar promo auto para ${groupId}:`, e);
             }
         }
 
