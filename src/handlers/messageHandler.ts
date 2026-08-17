@@ -131,8 +131,17 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
             } catch (e) {
                 await sock.sendMessage(sender, { text: '❌ Erro ao limpar grupos.' });
             }
+        } else if (textMessage.trim().startsWith('!limparhistorico')) {
+            try {
+                const { getDb } = require('../database/db');
+                const db = await getDb();
+                await db.run('DELETE FROM sent_promos');
+                await sock.sendMessage(sender, { text: '🔄 *Histórico de promoções apagado!* O bot vai atirar a última oferta novamente em alguns segundos.' });
+            } catch (e) {
+                await sock.sendMessage(sender, { text: '❌ Erro ao limpar histórico.' });
+            }
         } else {
-            await sock.sendMessage(sender, { text: '🤖 *Comandos do Bot:*\n\nEnvie `!oferta <link_do_produto>` para disparar.\nEnvie `!limpargrupos` caso ele esteja tentando enviar para grupos antigos.' });
+            await sock.sendMessage(sender, { text: '🤖 *Comandos do Bot:*\n\nEnvie `!oferta <link_do_produto>` para disparar.\nEnvie `!limpargrupos` caso ele esteja tentando enviar para grupos antigos.\nEnvie `!limparhistorico` para forçar o bot a reenviar a última oferta capturada.' });
         }
     }
 }
