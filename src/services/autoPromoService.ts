@@ -29,9 +29,17 @@ async function checkAndSendPromo(socket: any) {
             if (!textMatch) continue;
             
             const msgHtml = textMatch[1];
+            const lowerHtml = msgHtml.toLowerCase();
+            
+            // Filtro básico para ignorar produtos que não sejam de tecnologia (ex: fralda, sabão, etc)
+            const techKeywords = ['pc', 'gamer', 'notebook', 'mouse', 'teclado', 'monitor', 'tv', 'smart', 'fone', 'headset', 'ssd', 'memória', 'placa', 'processador', 'ryzen', 'intel', 'apple', 'iphone', 'samsung', 'xiaomi', 'poco', 'redmi', 'motorola', 'nintendo', 'playstation', 'xbox', 'console', 'controle', 'usb', 'bluetooth', 'wi-fi', 'roteador', 'kindle', 'alexa', 'echo', 'carregador', 'cabo', 'hd', 'pendrive'];
+            const isTech = techKeywords.some(keyword => lowerHtml.includes(keyword));
+
+            if (!isTech) {
+                continue; // Pula essa promoção se não tiver nenhuma palavra do mundo tech
+            }
             
             // Só pegamos ofertas que tenham link da Amazon ou AliExpress
-            const lowerHtml = msgHtml.toLowerCase();
             if (lowerHtml.includes('amzn.to') || lowerHtml.includes('amazon.com') || lowerHtml.includes('link.amazon') || lowerHtml.includes('aliexpress.com') || lowerHtml.includes('ali.ski')) {
                 // Extrai o primeiro link
                 const urlMatch = msgHtml.match(/href="(https:\/\/[^"]+)"/);
