@@ -8,6 +8,7 @@ dotenv.config();
 const ADMIN_NUMBER = process.env.ADMIN_NUMBER + '@s.whatsapp.net';
 
 export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
+    if (!msg.key) return;
     const sender = msg.key.remoteJid;
     const textMessage = msg.message?.conversation || msg.message?.extendedTextMessage?.text || '';
 
