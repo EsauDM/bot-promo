@@ -7,24 +7,24 @@ export function extractLink(text: string): string | null {
     return matches ? matches[0] : null;
 }
 
-export async function generateAffiliateMessage(originalLink: string): Promise<string> {
-    // Aqui você implementará a lógica real para gerar o link de afiliado
-    // dependendo da loja (Amazon, Shopee, Mercado Livre, etc).
-    // Como exemplo, vou mostrar uma lógica mockada.
-    
+export async function generateAffiliateMessage(originalLink: string, customTitle?: string, customPrice?: string): Promise<string> {
     const affiliateTag = process.env.AFFILIATE_TAG || 'minhatag-20';
     let affiliateLink = originalLink;
-    let title = "🔥 *SUPER OFERTA DETECTADA!* 🔥";
-    let price = "Preço imperdível";
+    
+    // Se o Admin enviou um título ou preço junto com o comando, usamos eles. Se não, usamos o padrão.
+    let title = customTitle ? `🔥 *${customTitle.trim()}* 🔥` : "🔥 *SUPER OFERTA DETECTADA!* 🔥";
+    let price = customPrice ? customPrice.trim() : "Preço imperdível";
 
     if (originalLink.includes('amazon.com.br') || originalLink.includes('amzn.to')) {
-        // Exemplo simplificado (para URLs longas)
-        const url = new URL(originalLink);
-        url.searchParams.set('tag', affiliateTag);
-        affiliateLink = url.toString();
+        try {
+            const url = new URL(originalLink);
+            url.searchParams.set('tag', affiliateTag);
+            affiliateLink = url.toString();
+        } catch(e) {}
     }
+    // Para Mercado Livre, geralmente você já gera o link encurtado no painel de afiliados deles
+    // e manda direto pro bot, então o 'affiliateLink' continuará sendo o link original que você enviou.
     
-    // Formata a mensagem lindamente
     const message = `
 ${title}
 
