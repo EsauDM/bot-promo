@@ -25,16 +25,14 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
 
     // Se for grupo, verifica se fomos adicionados
     if (sender.endsWith('@g.us')) {
-        // Em grupos, quem enviou a mensagem está em msg.key.participant
-        const participant = msg.key.participant || msg.participant || '';
+        // Em grupos, o WhatsApp pode enviar a mensagem em modo LID escondendo o número real.
+        // O número verdadeiro fica em participantAlt
+        const keyAny = msg.key as any;
+        const participant = keyAny.participantAlt || msg.key.participant || msg.participant || '';
         const participantRoot = cleanNumber(participant);
 
         // Comando para registrar grupo
         if (textMessage.trim() === '!registrar') {
-             console.log("=== DEBUG MENSAGEM !REGISTRAR ===");
-             console.log(JSON.stringify(msg, null, 2));
-             console.log("=================================");
-             
              if (participantRoot.endsWith(adminFinal8)) {
                  const groupMetadata = await sock.groupMetadata(sender);
                  await addGroup(sender, groupMetadata.subject);
