@@ -49,6 +49,7 @@ export async function connectToWhatsApp() {
         if (m.type !== 'notify') return;
         
         for (const msg of m.messages) {
+            console.log(`[DEBUG GERAL] Recebeu de: ${msg.key.remoteJid} | fromMe: ${msg.key.fromMe}`);
             if (!msg.message || msg.key.fromMe) continue;
             await handleMessage(sock, msg);
         }
