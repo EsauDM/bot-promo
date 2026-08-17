@@ -9,8 +9,19 @@ const ADMIN_NUMBER = process.env.ADMIN_NUMBER + '@s.whatsapp.net';
 
 export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
     if (!msg.key) return;
+    const getMessageText = (message: any): string => {
+        if (!message) return '';
+        if (message.conversation) return message.conversation;
+        if (message.extendedTextMessage?.text) return message.extendedTextMessage.text;
+        if (message.imageMessage?.caption) return message.imageMessage.caption;
+        if (message.ephemeralMessage?.message) return getMessageText(message.ephemeralMessage.message);
+        if (message.viewOnceMessageV2?.message) return getMessageText(message.viewOnceMessageV2.message);
+        if (message.viewOnceMessage?.message) return getMessageText(message.viewOnceMessage.message);
+        return '';
+    };
+
     const sender = msg.key.remoteJid || '';
-    const textMessage = msg.message?.conversation || msg.message?.extendedTextMessage?.text || msg.message?.imageMessage?.caption || '';
+    const textMessage = getMessageText(msg.message);
 
     // Remove qualquer coisa que não seja número da ENV
     const adminNumber = process.env.ADMIN_NUMBER?.replace(/\D/g, '') || '0';
@@ -67,9 +78,20 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
                 const activeGroups = await getActiveGroups();
                 let successCount = 0;
                 
-                // Extrai imagem se a mensagem original tiver uma
+                // Helper para extrair a mídia corretamente mesmo se for mensagem temporária
+                const getImageMessage = (message: any): any => {
+                    if (!message) return null;
+                    if (message.imageMessage) return message.imageMessage;
+                    if (message.ephemeralMessage?.message) return getImageMessage(message.ephemeralMessage.message);
+                    if (message.viewOnceMessageV2?.message) return getImageMessage(message.viewOnceMessageV2.message);
+                    if (message.viewOnceMessage?.message) return getImageMessage(message.viewOnceMessage.message);
+                    return null;
+                };
+
                 let imageBuffer = null;
-                if (msg.message?.imageMessage) {
+                const imgMsg = getImageMessage(msg.message);
+                
+                if (imgMsg) {
                     try {
                         const { downloadMediaMessage } = require('@whiskeysockets/baileys');
                         imageBuffer = await downloadMediaMessage(msg, 'buffer', {}, { logger: undefined });
