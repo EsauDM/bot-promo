@@ -22,5 +22,11 @@ export async function getDb(): Promise<Database> {
         )
     `);
 
+    await dbInstance.exec(`
+        CREATE TABLE IF NOT EXISTS sent_promos (
+            link TEXT PRIMARY KEY
+        )
+    `);
+
     return dbInstance;
 }

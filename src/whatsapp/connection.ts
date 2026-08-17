@@ -3,6 +3,7 @@ import pino from 'pino';
 import qrcode from 'qrcode-terminal';
 import { Boom } from '@hapi/boom';
 import { handleMessage } from '../handlers/messageHandler';
+import { initAutoPromo } from '../services/autoPromoService';
 
 export async function connectToWhatsApp() {
     // Gestão de estado do Baileys para não precisar ler o QR Code toda vez
@@ -17,7 +18,6 @@ export async function connectToWhatsApp() {
         getMessage: async () => { return undefined },
         logger: pino({ level: 'silent' }) as any,
         browser: Browsers.ubuntu('Chrome'), // Engana o WhatsApp dizendo que é o Chrome no Ubuntu
-        syncFullHistory: false, // Muito importante para economizar RAM
         generateHighQualityLinkPreview: false,
     });
 
@@ -38,6 +38,8 @@ export async function connectToWhatsApp() {
             }
         } else if (connection === 'open') {
             console.log('✅ Conectado ao WhatsApp com sucesso!');
+            // Inicia o Sniper de promoções automático
+            initAutoPromo(sock);
         }
     });
 
