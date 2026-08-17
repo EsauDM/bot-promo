@@ -15,7 +15,7 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
     let title = customTitle ? `🔥 *${customTitle.trim()}* 🔥` : "🔥 *SUPER OFERTA DETECTADA!* 🔥";
     let price = customPrice ? customPrice.trim() : "Preço imperdível";
 
-    if (originalLink.includes('amazon.com.br') || originalLink.includes('amzn.to')) {
+    if (originalLink.includes('amazon.com.br') || originalLink.includes('amzn.to') || originalLink.includes('link.amazon')) {
         try {
             const url = new URL(originalLink);
             url.searchParams.set('tag', affiliateTag);

@@ -27,7 +27,7 @@ async function checkAndSendPromo(socket: any) {
             const msgHtml = match[1];
             
             // Só pegamos ofertas que tenham link da Amazon (para garantir a conversão fácil da sua tag)
-            if (msgHtml.includes('amzn.to') || msgHtml.includes('amazon.com')) {
+            if (msgHtml.includes('amzn.to') || msgHtml.includes('amazon.com') || msgHtml.includes('link.amazon')) {
                 // Extrai o primeiro link
                 const urlMatch = msgHtml.match(/href="(https:\/\/[^"]+)"/);
                 if (urlMatch) {
