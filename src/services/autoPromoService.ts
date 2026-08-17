@@ -19,12 +19,16 @@ async function checkAndSendPromo(socket: any) {
         const html = await response.text();
 
         // Regex para extrair os blocos de mensagem do Telegram
-        const messageRegex = /<div class="tgme_widget_message_text[^>]*>(.*?)<\/div>/g;
-        let match;
+        // Separamos por wrap para pegar a imagem que fica fora do texto
+        const blocks = html.split('tgme_widget_message_wrap');
         const promos = [];
 
-        while ((match = messageRegex.exec(html)) !== null) {
-            const msgHtml = match[1];
+        for (let i = 1; i < blocks.length; i++) {
+            const block = blocks[i];
+            const textMatch = block.match(/<div class="tgme_widget_message_text[^>]*>(.*?)<\/div>/);
+            if (!textMatch) continue;
+            
+            const msgHtml = textMatch[1];
             
             // Só pegamos ofertas que tenham link da Amazon (para garantir a conversão fácil da sua tag)
             if (msgHtml.includes('amzn.to') || msgHtml.includes('amazon.com') || msgHtml.includes('link.amazon')) {
@@ -41,7 +45,11 @@ async function checkAndSendPromo(socket: any) {
                     const priceMatch = msgHtml.match(/R\$\s?[\d\.,]+/);
                     const rawPrice = priceMatch ? priceMatch[0] : "Preço Especial";
 
-                    promos.push({ link: originalLink, title: rawTitle, price: rawPrice });
+                    // Extrai a Imagem (se houver)
+                    const imgMatch = block.match(/background-image:url\('([^']+)'\)/);
+                    const imageUrl = imgMatch ? imgMatch[1] : null;
+
+                    promos.push({ link: originalLink, title: rawTitle, price: rawPrice, image: imageUrl });
                 }
             }
         }
@@ -78,7 +86,11 @@ async function checkAndSendPromo(socket: any) {
         
         for (const groupId of activeGroups) {
             try {
-                await socket.sendMessage(groupId, { text: promoMessage });
+                if (latestPromo.image) {
+                    await socket.sendMessage(groupId, { image: { url: latestPromo.image }, caption: promoMessage });
+                } else {
+                    await socket.sendMessage(groupId, { text: promoMessage });
+                }
                 await new Promise(resolve => setTimeout(resolve, 3000)); // Delay anti-ban
             } catch (e) {
                 console.error(`Erro ao enviar promo auto para ${groupId}:`, e);

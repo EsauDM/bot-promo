@@ -10,7 +10,7 @@ const ADMIN_NUMBER = process.env.ADMIN_NUMBER + '@s.whatsapp.net';
 export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
     if (!msg.key) return;
     const sender = msg.key.remoteJid || '';
-    const textMessage = msg.message?.conversation || msg.message?.extendedTextMessage?.text || '';
+    const textMessage = msg.message?.conversation || msg.message?.extendedTextMessage?.text || msg.message?.imageMessage?.caption || '';
 
     // Remove qualquer coisa que não seja número da ENV
     const adminNumber = process.env.ADMIN_NUMBER?.replace(/\D/g, '') || '0';
@@ -65,10 +65,25 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
                 
                 const activeGroups = await getActiveGroups();
                 let successCount = 0;
+                
+                // Extrai imagem se a mensagem original tiver uma
+                let imageBuffer = null;
+                if (msg.message?.imageMessage) {
+                    try {
+                        const { downloadMediaMessage } = require('@whiskeysockets/baileys');
+                        imageBuffer = await downloadMediaMessage(msg, 'buffer', {}, { logger: undefined });
+                    } catch (e) {
+                        console.error('Erro ao baixar imagem:', e);
+                    }
+                }
 
                 for (const groupId of activeGroups) {
                     try {
-                        await sock.sendMessage(groupId, { text: promoMessage });
+                        if (imageBuffer) {
+                            await sock.sendMessage(groupId, { image: imageBuffer, caption: promoMessage });
+                        } else {
+                            await sock.sendMessage(groupId, { text: promoMessage });
+                        }
                         successCount++;
                         await new Promise(resolve => setTimeout(resolve, 2000));
                     } catch (err) {
