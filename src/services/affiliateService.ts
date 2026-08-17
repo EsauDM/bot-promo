@@ -29,9 +29,33 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
             url.searchParams.set('tag', affiliateTag);
             affiliateLink = url.toString();
         } catch(e) {}
+    } else if (originalLink.includes('aliexpress.com') || originalLink.includes('ali.ski')) {
+        try {
+            const aliExpressShortKey = process.env.ALIEXPRESS_KEY || '_c39LG19l';
+            let targetUrl = originalLink;
+            
+            // Desencurta o link para pegar o URL real do produto
+            if (originalLink.includes('/e/') || originalLink.includes('a.aliexpress.com') || originalLink.includes('s.click.aliexpress.com') || originalLink.includes('ali.ski')) {
+                const response = await fetch(originalLink, { redirect: 'manual' });
+                targetUrl = response.headers.get('location') || originalLink;
+                
+                // Trata duplo redirect que às vezes acontece
+                if (targetUrl.includes('/e/') || targetUrl.includes('a.aliexpress.com') || targetUrl.includes('s.click.aliexpress.com')) {
+                    const response2 = await fetch(targetUrl, { redirect: 'manual' });
+                    targetUrl = response2.headers.get('location') || targetUrl;
+                }
+            }
+
+            // Remove todos os parâmetros de comissão do dono do grupo
+            const urlObj = new URL(targetUrl);
+            const cleanTargetUrl = urlObj.origin + urlObj.pathname; 
+
+            // Monta o seu link comissionado
+            affiliateLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${aliExpressShortKey}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
+        } catch (e) {
+            console.error('Erro na conversão do AliExpress:', e);
+        }
     }
-    // Para Mercado Livre, geralmente você já gera o link encurtado no painel de afiliados deles
-    // e manda direto pro bot, então o 'affiliateLink' continuará sendo o link original que você enviou.
     
     const message = `
 ${title}

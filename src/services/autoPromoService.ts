@@ -30,8 +30,9 @@ async function checkAndSendPromo(socket: any) {
             
             const msgHtml = textMatch[1];
             
-            // Só pegamos ofertas que tenham link da Amazon (para garantir a conversão fácil da sua tag)
-            if (msgHtml.includes('amzn.to') || msgHtml.includes('amazon.com') || msgHtml.includes('link.amazon')) {
+            // Só pegamos ofertas que tenham link da Amazon ou AliExpress
+            const lowerHtml = msgHtml.toLowerCase();
+            if (lowerHtml.includes('amzn.to') || lowerHtml.includes('amazon.com') || lowerHtml.includes('link.amazon') || lowerHtml.includes('aliexpress.com') || lowerHtml.includes('ali.ski')) {
                 // Extrai o primeiro link
                 const urlMatch = msgHtml.match(/href="(https:\/\/[^"]+)"/);
                 if (urlMatch) {
