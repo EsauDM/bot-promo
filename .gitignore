@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+baileys_auth_info/
+bot_database.sqlite
+bot_database.sqlite-journal
+bot_database.sqlite-shm
+bot_database.sqlite-wal
+*.log
+.DS_Store
