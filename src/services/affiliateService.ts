@@ -7,13 +7,21 @@ export function extractLink(text: string): string | null {
     return matches ? matches[0] : null;
 }
 
-export async function generateAffiliateMessage(originalLink: string, customTitle?: string, customPrice?: string): Promise<string> {
+export async function generateAffiliateMessage(originalLink: string, customTitle?: string, oldPrice?: string, newPrice?: string): Promise<string> {
     const affiliateTag = process.env.AFFILIATE_TAG || 'minhatag-20';
     let affiliateLink = originalLink;
     
     // Se o Admin enviou um título ou preço junto com o comando, usamos eles. Se não, usamos o padrão.
     let title = customTitle ? `🔥 *${customTitle.trim()}* 🔥` : "🔥 *SUPER OFERTA DETECTADA!* 🔥";
-    let price = customPrice ? customPrice.trim() : "Preço imperdível";
+    
+    let priceSection = "";
+    if (oldPrice && newPrice) {
+        priceSection = `❌ De: ~${oldPrice.trim()}~\n✅ Por apenas: *${newPrice.trim()}*`;
+    } else if (oldPrice && !newPrice) {
+        priceSection = `💸 Por apenas: *${oldPrice.trim()}*`;
+    } else {
+        priceSection = `💸 Preço Especial!`;
+    }
 
     if (originalLink.includes('amazon.com.br') || originalLink.includes('amzn.to') || originalLink.includes('link.amazon')) {
         try {
@@ -28,7 +36,7 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
     const message = `
 ${title}
 
-💸 ${price}
+${priceSection}
 🛍️ *Compre aqui:* ${affiliateLink}
 
 🚀 _Promoção por tempo limitado!_

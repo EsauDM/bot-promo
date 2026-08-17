@@ -54,14 +54,15 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
                 return;
             }
 
-            // O formato será: !oferta https://link... | Nome do Produto | R$ 199,00
+            // O formato será: !oferta https://link... | Nome do Produto | R$ 199,00 | R$ 99,00
             const parts = textMessage.split('|');
             const customTitle = parts.length > 1 ? parts[1].trim() : undefined;
-            const customPrice = parts.length > 2 ? parts[2].trim() : undefined;
+            const oldPrice = parts.length > 2 ? parts[2].trim() : undefined;
+            const newPrice = parts.length > 3 ? parts[3].trim() : undefined;
 
             try {
                 await sock.sendMessage(sender, { text: '⏳ Processando e enviando oferta...' });
-                const promoMessage = await generateAffiliateMessage(link, customTitle, customPrice);
+                const promoMessage = await generateAffiliateMessage(link, customTitle, oldPrice, newPrice);
                 
                 const activeGroups = await getActiveGroups();
                 let successCount = 0;

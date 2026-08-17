@@ -41,15 +41,23 @@ async function checkAndSendPromo(socket: any) {
                     let rawTitle = msgHtml.split('<br/>')[0].replace(/<[^>]*>?/gm, '').trim();
                     if (!rawTitle || rawTitle.length < 5) rawTitle = "Mega Promoção de Tecnologia!";
 
-                    // Extrai preço (tenta achar R$ XX,XX)
-                    const priceMatch = msgHtml.match(/R\$\s?[\d\.,]+/);
-                    const rawPrice = priceMatch ? priceMatch[0] : "Preço Especial";
+                    // Extrai preços (tenta achar R$ XX,XX)
+                    const prices = msgHtml.match(/R\$\s?[\d\.,]+/g);
+                    let oldPrice = undefined;
+                    let newPrice = undefined;
+
+                    if (prices && prices.length >= 2) {
+                        oldPrice = prices[0];
+                        newPrice = prices[1];
+                    } else if (prices && prices.length === 1) {
+                        oldPrice = prices[0];
+                    }
 
                     // Extrai a Imagem (se houver)
                     const imgMatch = block.match(/background-image:url\('([^']+)'\)/);
                     const imageUrl = imgMatch ? imgMatch[1] : null;
 
-                    promos.push({ link: originalLink, title: rawTitle, price: rawPrice, image: imageUrl });
+                    promos.push({ link: originalLink, title: rawTitle, oldPrice, newPrice, image: imageUrl });
                 }
             }
         }
@@ -77,7 +85,7 @@ async function checkAndSendPromo(socket: any) {
         }
 
         // Não foi enviada, então vamos enviar!
-        const promoMessage = await generateAffiliateMessage(latestPromo.link, latestPromo.title, latestPromo.price);
+        const promoMessage = await generateAffiliateMessage(latestPromo.link, latestPromo.title, latestPromo.oldPrice, latestPromo.newPrice);
         const activeGroups = await getActiveGroups();
 
         if (activeGroups.length === 0) return;
