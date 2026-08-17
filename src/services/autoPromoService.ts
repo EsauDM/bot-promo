@@ -54,11 +54,26 @@ async function checkAndSendPromo(socket: any) {
                         oldPrice = prices[0];
                     }
 
-                    // Extrai a Imagem (se houver)
-                    const imgMatch = block.match(/background-image:url\('([^']+)'\)/);
-                    const imageUrl = imgMatch ? imgMatch[1] : null;
+                    // Extrai a imagem do produto (e ignora emojis ou avatars)
+                    const imageUrlMatch = block.match(/tgme_widget_message_photo_wrap[^>]+style="background-image:url\('([^']+)'\)/);
+                    let imageBuffer = null;
+                    if (imageUrlMatch && imageUrlMatch[1]) {
+                        let imgUrl = imageUrlMatch[1];
+                        // Caso a URL venha sem https: (ex: //cdn.telegram.org)
+                        if (imgUrl.startsWith('//')) {
+                            imgUrl = 'https:' + imgUrl;
+                        }
+                        
+                        try {
+                            const response = await fetch(imgUrl);
+                            const arrayBuffer = await response.arrayBuffer();
+                            imageBuffer = Buffer.from(arrayBuffer);
+                        } catch (e) {
+                            console.error('Erro baixar img do telegram', e);
+                        }
+                    }
 
-                    promos.push({ link: originalLink, title: rawTitle, oldPrice, newPrice, image: imageUrl });
+                    promos.push({ link: originalLink, title: rawTitle, oldPrice, newPrice, image: imageBuffer });
                 }
             }
         }
@@ -96,7 +111,7 @@ async function checkAndSendPromo(socket: any) {
         for (const groupId of activeGroups) {
             try {
                 if (latestPromo.image) {
-                    await socket.sendMessage(groupId, { image: { url: latestPromo.image }, caption: promoMessage });
+                    await socket.sendMessage(groupId, { image: latestPromo.image, caption: promoMessage });
                 } else {
                     await socket.sendMessage(groupId, { text: promoMessage });
                 }
