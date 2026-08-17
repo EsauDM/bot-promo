@@ -122,8 +122,17 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
                 console.error(error);
                 await sock.sendMessage(sender, { text: '❌ Erro ao gerar ou enviar a oferta.' });
             }
+        } else if (textMessage.trim().startsWith('!limpargrupos')) {
+            try {
+                const { getDb } = require('../database/db');
+                const db = await getDb();
+                await db.run('UPDATE groups SET active=0');
+                await sock.sendMessage(sender, { text: '🧹 *Todos os grupos foram removidos do banco de dados!*\n\nAgora vá no seu grupo oficial e digite `!registrar` novamente.' });
+            } catch (e) {
+                await sock.sendMessage(sender, { text: '❌ Erro ao limpar grupos.' });
+            }
         } else {
-            await sock.sendMessage(sender, { text: '🤖 *Comandos do Bot:*\n\nEnvie `!oferta <link_do_produto>` para disparar em todos os grupos registrados.' });
+            await sock.sendMessage(sender, { text: '🤖 *Comandos do Bot:*\n\nEnvie `!oferta <link_do_produto>` para disparar.\nEnvie `!limpargrupos` caso ele esteja tentando enviar para grupos antigos.' });
         }
     }
 }
