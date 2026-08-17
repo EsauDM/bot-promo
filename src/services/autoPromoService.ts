@@ -50,20 +50,20 @@ async function checkAndSendPromo(socket: any) {
                     let rawTitle = msgHtml.split('<br/>')[0].replace(/<[^>]*>?/gm, '').trim();
                     if (!rawTitle || rawTitle.length < 5) rawTitle = "Mega Promoção de Tecnologia!";
 
-                    // Extrai preços (tenta achar R$ XX,XX)
-                    const prices = msgHtml.match(/R\$\s?[\d\.,]+/g);
+                    // Extrai preços (tenta achar R$ XX,XX ou R&#036; XX,XX gerado pelo Telegram Web)
+                    const prices = msgHtml.match(/R(?:\$|&#036;)\s?[\d\.,]+/g);
                     let oldPrice = undefined;
                     let newPrice = undefined;
 
                     if (prices && prices.length >= 2) {
-                        oldPrice = prices[0];
-                        newPrice = prices[1];
+                        oldPrice = prices[0].replace('&#036;', '$');
+                        newPrice = prices[1].replace('&#036;', '$');
                     } else if (prices && prices.length === 1) {
-                        oldPrice = prices[0];
+                        oldPrice = prices[0].replace('&#036;', '$');
                     }
 
                     // Extrai a imagem do produto (e ignora emojis ou avatars)
-                    const imageUrlMatch = block.match(/tgme_widget_message_photo_wrap[^>]+style="background-image:url\('([^']+)'\)/);
+                    const imageUrlMatch = block.match(/tgme_widget_message_photo_wrap[^>]+background-image:url\('([^']+)'\)/);
                     let imageBuffer = null;
                     if (imageUrlMatch && imageUrlMatch[1]) {
                         let imgUrl = imageUrlMatch[1];
