@@ -18,9 +18,17 @@ export async function getDb(): Promise<Database> {
         CREATE TABLE IF NOT EXISTS groups (
             id TEXT PRIMARY KEY,
             name TEXT,
-            active BOOLEAN DEFAULT 1
+            active BOOLEAN DEFAULT 1,
+            niche TEXT DEFAULT 'tech'
         )
     `);
+
+    // Migration para bancos existentes
+    try {
+        await dbInstance.exec(`ALTER TABLE groups ADD COLUMN niche TEXT DEFAULT 'tech'`);
+    } catch (e) {
+        // Coluna já existe
+    }
 
     await dbInstance.exec(`
         CREATE TABLE IF NOT EXISTS sent_promos (

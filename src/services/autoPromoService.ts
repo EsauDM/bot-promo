@@ -80,6 +80,7 @@ interface Promo {
     coupon?: string;
     instructions?: string;
     photoUrl?: string;
+    niche?: string;
 }
 
 async function scrapeOffers(): Promise<Promo[]> {
@@ -109,37 +110,59 @@ async function scrapeOffers(): Promise<Promo[]> {
                     photoUrl = 'https:' + photoUrl;
                 }
                 
-                // Filtro Positivo
-                const pcKeywords = [
-                    'pc ', 'computador', 'gamer', 'placa de vídeo', 'placa-mãe', 'placa mãe', 'processador',
-                    'ryzen', 'intel', 'core i', 'memória ram', 'ddr4', 'ddr5', 'ssd', 'nvme', 'm.2', 'hd ', 'disco rígido',
-                    'gabinete', 'fonte', 'water cooler', 'watercooler', 'air cooler', 'rtx', 'gtx', 'rx ',
-                    'radeon', 'nvidia', 'amd', 'mouse', 'teclado', 'headset', 'monitor', 'cadeira gamer',
-                    'joystick', 'gamepad', 'controle', 'nintendo switch', 'playstation', 'xbox',
-                    'ps4', 'ps5', 'xbox series', 'notebook', 'laptop', 'macbook', 'setup',
-                    'fone de ouvido', 'microfone', 'webcam', 'roteador', 'pendrive', 'micro sd',
-                    'celular', 'smartphone', 'iphone', 'galaxy', 'poco', 'xiaomi', 'smart tv', 'tv '
-                ];
-
-                // Ignorar eletrodomésticos, cozinha, higiene e cosméticos (Filtro negativo)
-                const ignoreKeywords = [
-                    'liquidificador', 'fritadeira', 'airfryer', 'fralda', 'sabão', 'sabonete', 'shampoo', 
-                    'desodorante', 'cafeteira', 'geladeira', 'fogão', 'microondas', 'micro-ondas', 'aspirador', 
-                    'ferro de passar', 'perfume', 'maquiagem', 'creme', 'multiprocessador', 'oster', 'batedeira', 
-                    'mixer', 'panela', 'forno', 'gloss', 'batom', 'skincare', 'hidratante', 'cabelo'
-                ];
-
-                const isPcOrPeripheral = pcKeywords.some(keyword => {
-                    const kw = keyword.trim();
-                    if (['pc', 'hd', 'tv', 'rx', 'gtx', 'rtx', 'iphone', 'macbook', 'ipad', 'ssd'].includes(kw)) {
-                        return new RegExp(`\\b${kw}\\b`, 'i').test(lowerHtml);
+                const nichesConfig: any = {
+                    tech: {
+                        positive: [
+                            'pc', 'computador', 'gamer', 'placa de vídeo', 'placa-mãe', 'placa mãe', 'processador',
+                            'ryzen', 'intel', 'core i', 'memória ram', 'ddr4', 'ddr5', 'ssd', 'nvme', 'm.2', 'hd', 'disco rígido',
+                            'gabinete', 'fonte', 'water cooler', 'watercooler', 'air cooler', 'rtx', 'gtx', 'rx',
+                            'radeon', 'nvidia', 'amd', 'mouse', 'teclado', 'headset', 'monitor', 'cadeira gamer',
+                            'joystick', 'gamepad', 'controle', 'nintendo switch', 'playstation', 'xbox',
+                            'ps4', 'ps5', 'xbox series', 'notebook', 'laptop', 'macbook', 'setup',
+                            'fone de ouvido', 'microfone', 'webcam', 'roteador', 'pendrive', 'micro sd',
+                            'celular', 'smartphone', 'iphone', 'galaxy', 'poco', 'xiaomi', 'smart tv', 'tv'
+                        ],
+                        negative: [
+                            'liquidificador', 'fritadeira', 'airfryer', 'fralda', 'sabão', 'sabonete', 'shampoo', 
+                            'desodorante', 'cafeteira', 'geladeira', 'fogão', 'microondas', 'micro-ondas', 'aspirador', 
+                            'ferro de passar', 'perfume', 'maquiagem', 'creme', 'multiprocessador', 'oster', 'batedeira', 
+                            'mixer', 'panela', 'forno', 'gloss', 'batom', 'skincare', 'hidratante', 'cabelo'
+                        ]
+                    },
+                    casa: {
+                        positive: [
+                            'liquidificador', 'fritadeira', 'airfryer', 'cafeteira', 'geladeira', 'fogão', 'microondas', 
+                            'micro-ondas', 'aspirador', 'ferro de passar', 'multiprocessador', 'oster', 'batedeira', 
+                            'mixer', 'panela', 'forno', 'sofá', 'cama', 'lençol', 'travesseiro', 'toalha', 'tapete',
+                            'mesa', 'cadeira', 'armário', 'guarda-roupa', 'cozinha', 'eletrodoméstico', 'lavadora'
+                        ],
+                        negative: [
+                            'pc', 'gamer', 'placa de vídeo', 'processador', 'ryzen', 'intel', 'ssd', 'memória ram'
+                        ]
                     }
-                    return lowerHtml.includes(keyword);
-                });
-                
-                const shouldIgnore = ignoreKeywords.some(keyword => lowerHtml.includes(keyword));
+                };
 
-                if (!isPcOrPeripheral || shouldIgnore) {
+                // Identifica a qual nicho essa oferta pertence
+                let foundNiche: string | null = null;
+                
+                for (const [nicheName, rules] of Object.entries(nichesConfig)) {
+                    const isPositive = (rules as any).positive.some((keyword: string) => {
+                        const kw = keyword.trim();
+                        if (['pc', 'hd', 'tv', 'rx', 'gtx', 'rtx', 'iphone', 'macbook', 'ipad', 'ssd', 'cama'].includes(kw)) {
+                            return new RegExp(`\\b${kw}\\b`, 'i').test(lowerHtml);
+                        }
+                        return lowerHtml.includes(keyword);
+                    });
+                    
+                    const isIgnored = (rules as any).negative.some((keyword: string) => lowerHtml.includes(keyword));
+                    
+                    if (isPositive && !isIgnored) {
+                        foundNiche = nicheName;
+                        break;
+                    }
+                }
+
+                if (!foundNiche) {
                     continue; 
                 }
 
@@ -211,7 +234,7 @@ async function scrapeOffers(): Promise<Promo[]> {
                             }
                         }
 
-                        promos.push({ link: originalLink, secondaryLink, title, oldPrice, price, coupon, instructions, photoUrl });
+                        promos.push({ link: originalLink, secondaryLink, title, oldPrice, price, coupon, instructions, photoUrl, niche: foundNiche });
                     }
                 }
             }
@@ -269,7 +292,10 @@ async function checkAndSendPromo(socket: any) {
 
                 console.log(`🚀 [AutoPromo] Disparando nova oferta: ${promo.title || 'Oferta'}`);
                 
-                for (const groupId of activeGroups) {
+                for (const group of activeGroups) {
+                    if (group.niche !== promo.niche && group.niche !== 'geral') {
+                        continue;
+                    }
                     try {
                         if (promo.photoUrl) {
                             let imagePayload: any = { url: promo.photoUrl };
@@ -290,12 +316,12 @@ async function checkAndSendPromo(socket: any) {
                                 console.error('Erro ao baixar imagem manualmente:', downloadErr);
                             }
 
-                            await socket.sendMessage(groupId, { image: imagePayload, caption: message });
+                            await socket.sendMessage(group.id, { image: imagePayload, caption: message });
                         } else {
-                            await socket.sendMessage(groupId, { text: message });
+                            await socket.sendMessage(group.id, { text: message });
                         }
                     } catch (err) {
-                        console.error(`Erro ao enviar para o grupo ${groupId}:`, err);
+                        console.error(`Erro ao enviar para o grupo ${group.id}:`, err);
                     }
                 }
 

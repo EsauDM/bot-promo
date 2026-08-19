@@ -47,9 +47,22 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
              if (participantRoot.endsWith(adminFinal8)) {
                  const groupMetadata = await sock.groupMetadata(sender);
                  await addGroup(sender, groupMetadata.subject);
-                 await sock.sendMessage(sender, { text: '✅ Grupo registrado para receber as promoções!' });
+                 await sock.sendMessage(sender, { text: '✅ Grupo registrado para receber as promoções! O nicho padrão é *tech*.\nPara mudar, digite `!nicho casa` ou `!nicho geral`.' });
              } else {
                  console.log(`[IGNORADO] ${participantRoot} tentou registrar, mas não é admin.`);
+             }
+        }
+        
+        if (textMessage.trim().startsWith('!nicho')) {
+             if (participantRoot.endsWith(adminFinal8)) {
+                 const nicheName = textMessage.replace('!nicho', '').trim().toLowerCase();
+                 if (!nicheName) {
+                     await sock.sendMessage(sender, { text: '❌ Digite o nome do nicho. Ex: !nicho casa' });
+                     return;
+                 }
+                 const { setGroupNiche } = require('../database/groupRepository');
+                 await setGroupNiche(sender, nicheName);
+                 await sock.sendMessage(sender, { text: `✅ O nicho deste grupo foi atualizado para: *${nicheName}*` });
              }
         }
         return;
@@ -103,17 +116,17 @@ export async function handleMessage(sock: any, msg: proto.IWebMessageInfo) {
                     }
                 }
 
-                for (const groupId of activeGroups) {
+                for (const group of activeGroups) {
                     try {
                         if (imageBuffer) {
-                            await sock.sendMessage(groupId, { image: imageBuffer, caption: promoMessage });
+                            await sock.sendMessage(group.id, { image: imageBuffer, caption: promoMessage });
                         } else {
-                            await sock.sendMessage(groupId, { text: promoMessage });
+                            await sock.sendMessage(group.id, { text: promoMessage });
                         }
                         successCount++;
                         await new Promise(resolve => setTimeout(resolve, 2000));
                     } catch (err) {
-                        console.error(`Erro ao enviar para o grupo ${groupId}:`, err);
+                        console.error(`Erro ao enviar para o grupo ${group.id}:`, err);
                     }
                 }
 

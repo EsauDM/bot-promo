@@ -13,8 +13,18 @@ export async function removeGroup(id: string) {
     await db.run(`UPDATE groups SET active=0 WHERE id=?`, [id]);
 }
 
-export async function getActiveGroups(): Promise<string[]> {
+export async function setGroupNiche(id: string, niche: string) {
     const db = await getDb();
-    const rows = await db.all(`SELECT id FROM groups WHERE active=1`);
-    return rows.map(r => r.id);
+    await db.run(`UPDATE groups SET niche=? WHERE id=?`, [niche, id]);
+}
+
+export interface GroupConfig {
+    id: string;
+    niche: string;
+}
+
+export async function getActiveGroups(): Promise<GroupConfig[]> {
+    const db = await getDb();
+    const rows = await db.all(`SELECT id, niche FROM groups WHERE active=1`);
+    return rows.map(r => ({ id: r.id, niche: r.niche || 'tech' }));
 }
