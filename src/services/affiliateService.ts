@@ -57,8 +57,8 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                 if (res.ok && res.data?.aliexpress_affiliate_link_generate_response?.resp_result?.result?.promotion_links?.[0]?.promotion_link) {
                     affiliateLink = res.data.aliexpress_affiliate_link_generate_response.resp_result.result.promotion_links[0].promotion_link;
                 } else {
-                    console.error('Erro na API do AliExpress:', res);
-                    // Fallback para deep link caso a API falhe
+                    // Fallback para deep link (página de moedas, etc)
+                    console.log('⚠️ [AliExpress API] Link incompatível. Aplicando Plano B (Deep Link Seguro)...');
                     affiliateLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
                 }
             } else {
