@@ -37,7 +37,29 @@ const TELEGRAM_CHANNELS = [
     'https://t.me/s/shopee_promos_br',
     'https://t.me/s/ofertas_shopee_br',
     'https://t.me/s/promo_shopee_br',
-    'https://t.me/s/shopeebroficial'
+    'https://t.me/s/shopeebroficial',
+    'https://t.me/s/achadosdashopee',
+    'https://t.me/s/shopee_promocoes',
+    'https://t.me/s/shopee_brasil',
+    
+    // Novas Fontes Massivas (Hardware, Ali, Amazon e Gerais)
+    'https://t.me/s/hardware_ofertas',
+    'https://t.me/s/BoleteirosHardware',
+    'https://t.me/s/Promos_Da_China',
+    'https://t.me/s/importabrasil',
+    'https://t.me/s/ofertas_amazon_br',
+    'https://t.me/s/promos_do_dia',
+    'https://t.me/s/melhores_promocoes',
+    'https://t.me/s/ofertas_e_cupons',
+    'https://t.me/s/garimpando_ofertas',
+    'https://t.me/s/aliexpress_promos_br',
+    'https://t.me/s/descontos_br',
+    'https://t.me/s/guia_de_ofertas',
+    'https://t.me/s/economiza_brasil',
+    'https://t.me/s/promos_online',
+    'https://t.me/s/tecnologia_ofertas',
+    'https://t.me/s/gamer_ofertas',
+    'https://t.me/s/promosbr'
 ];
 
 export async function initAutoPromo(socket: any) {
