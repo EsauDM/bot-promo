@@ -34,8 +34,8 @@ const TELEGRAM_CHANNELS = [
 ];
 
 export async function initAutoPromo(socket: any) {
-    // Inicia a verificação a cada 7 minutos (420000 ms)
-    setInterval(() => checkAndSendPromo(socket), 420000);
+    // Inicia a verificação a cada 5 minutos (300000 ms)
+    setInterval(() => checkAndSendPromo(socket), 300000);
     // Também faz uma busca logo que iniciar
     setTimeout(() => checkAndSendPromo(socket), 15000);
 }
