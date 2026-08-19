@@ -80,8 +80,8 @@ async function checkAndSendPromo(socket: any) {
                         continue; // Pula se não for peça de PC/periférico ou se for eletrodoméstico
                     }
 
-                    // Só pegamos ofertas que tenham link das lojas que trabalhamos
-                    if (lowerHtml.includes('amzn.to') || lowerHtml.includes('amazon.com') || lowerHtml.includes('link.amazon') || lowerHtml.includes('aliexpress.com') || lowerHtml.includes('ali.ski') || lowerHtml.includes('mercadolivre.com.br') || lowerHtml.includes('meli.la') || lowerHtml.includes('shopee.com.br') || lowerHtml.includes('shope.ee')) {
+                    // Só pegamos ofertas que tenham link das lojas que trabalhamos (Shopee desativada temporariamente)
+                    if (lowerHtml.includes('amzn.to') || lowerHtml.includes('amazon.com') || lowerHtml.includes('link.amazon') || lowerHtml.includes('aliexpress.com') || lowerHtml.includes('ali.ski') || lowerHtml.includes('mercadolivre.com.br') || lowerHtml.includes('meli.la')) {
                         // Extrai os links
                         const allUrls = [...msgHtml.matchAll(/href="(https:\/\/[^"]+)"/g)].map(m => m[1]);
                         if (allUrls.length > 0) {
