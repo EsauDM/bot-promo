@@ -36,7 +36,16 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                 }
 
                 const urlObj = new URL(targetUrl);
-                const cleanTargetUrl = urlObj.origin + urlObj.pathname; 
+                // Remove apenas o rastreio do afiliado original, mantendo parâmetros essenciais (como productIds)
+                urlObj.searchParams.delete('aff_fcid');
+                urlObj.searchParams.delete('aff_fsk');
+                urlObj.searchParams.delete('aff_trace_key');
+                urlObj.searchParams.delete('aff_platform');
+                urlObj.searchParams.delete('sk');
+                urlObj.searchParams.delete('terminal_id');
+                urlObj.searchParams.delete('tt');
+                
+                const cleanTargetUrl = urlObj.toString();
 
                 if (aliExpressAppKey && aliExpressAppSecret && aliExpressTrackingId) {
                     const { AffiliateClient } = require('ae_sdk');
