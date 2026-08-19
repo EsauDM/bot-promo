@@ -92,15 +92,22 @@ async function scrapeOffers(): Promise<Promo[]> {
                     'celular', 'smartphone', 'iphone', 'galaxy', 'poco', 'xiaomi', 'smart tv', 'tv '
                 ];
 
-                // Filtro Negativo
+                // Ignorar eletrodomésticos, cozinha, higiene e cosméticos (Filtro negativo)
                 const ignoreKeywords = [
                     'liquidificador', 'fritadeira', 'airfryer', 'fralda', 'sabão', 'sabonete', 'shampoo', 
                     'desodorante', 'cafeteira', 'geladeira', 'fogão', 'microondas', 'micro-ondas', 'aspirador', 
                     'ferro de passar', 'perfume', 'maquiagem', 'creme', 'multiprocessador', 'oster', 'batedeira', 
-                    'mixer', 'panela', 'forno'
+                    'mixer', 'panela', 'forno', 'gloss', 'batom', 'skincare', 'hidratante', 'cabelo'
                 ];
 
-                const isPcOrPeripheral = pcKeywords.some(keyword => lowerHtml.includes(keyword));
+                const isPcOrPeripheral = pcKeywords.some(keyword => {
+                    const kw = keyword.trim();
+                    if (['pc', 'hd', 'tv', 'rx', 'gtx', 'rtx', 'iphone', 'macbook', 'ipad', 'ssd'].includes(kw)) {
+                        return new RegExp(`\\b${kw}\\b`, 'i').test(lowerHtml);
+                    }
+                    return lowerHtml.includes(keyword);
+                });
+                
                 const shouldIgnore = ignoreKeywords.some(keyword => lowerHtml.includes(keyword));
 
                 if (!isPcOrPeripheral || shouldIgnore) {
