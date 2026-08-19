@@ -114,7 +114,8 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
 
     message += `(ANUNCIO)\n\n`;
     message += `🏆Amazon prime (30 dias grátis)\n`;
-    message += `https://amzn.to/4lM3PHH`;
+    message += `https://amzn.to/4lM3PHH\n\n`;
+    message += `*(⚠️ O preço ou estoque pode sofrer alterações pela loja sem aviso prévio)*`;
 
     return message;
 }
