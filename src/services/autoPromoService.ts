@@ -34,8 +34,8 @@ const TELEGRAM_CHANNELS = [
 ];
 
 export async function initAutoPromo(socket: any) {
-    // Inicia a verificação a cada 2 minutos
-    setInterval(() => checkAndSendPromo(socket), 120000);
+    // Inicia a verificação a cada 7 minutos (420000 ms)
+    setInterval(() => checkAndSendPromo(socket), 420000);
     // Também faz uma busca logo que iniciar
     setTimeout(() => checkAndSendPromo(socket), 15000);
 }
@@ -179,8 +179,8 @@ async function checkAndSendPromo(socket: any) {
         let sentCount = 0;
         // Processa todas as promoções encontradas (da mais antiga para a mais nova)
         for (const promo of promos.reverse()) {
-            if (sentCount >= 3) {
-                console.log(`⏳ [AutoPromo] Limite de 3 ofertas atingido neste ciclo. As demais ficam para os próximos minutos.`);
+            if (sentCount >= 5) {
+                console.log(`⏳ [AutoPromo] Limite de 5 ofertas atingido neste ciclo. As demais ficam para os próximos minutos.`);
                 break;
             }
 
