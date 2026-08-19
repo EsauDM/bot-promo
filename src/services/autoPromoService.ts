@@ -22,7 +22,15 @@ const TELEGRAM_CHANNELS = [
     'https://t.me/s/ofertastecnoblog',
     'https://t.me/s/QualyPromo',
     'https://t.me/s/promosninjas',
-    'https://t.me/s/PromocoeseOfertas'
+    'https://t.me/s/PromocoeseOfertas',
+    
+    // Focados em AliExpress e Amazon
+    'https://t.me/s/achados_ali',
+    'https://t.me/s/promoaliexpressbrasil',
+    'https://t.me/s/ofertas_amazon_brasil',
+    'https://t.me/s/aliexpressbr_oficial',
+    'https://t.me/s/cupons_ali',
+    'https://t.me/s/promos_amazon_br'
 ];
 
 export async function initAutoPromo(socket: any) {
@@ -55,14 +63,16 @@ async function checkAndSendPromo(socket: any) {
                     const msgHtml = textMatch[1];
                     const lowerHtml = msgHtml.toLowerCase();
                     
-                    // Filtro focado em Peças de PC, PC Montado e Periféricos
+                    // Filtro Positivo: Só processa se tiver alguma palavra relacionada a PC/Gamer/Tech
                     const pcKeywords = [
                         'pc ', 'computador', 'gamer', 'placa de vídeo', 'placa-mãe', 'placa mãe', 'processador',
                         'ryzen', 'intel', 'core i', 'memória ram', 'ddr4', 'ddr5', 'ssd', 'nvme', 'm.2', 'hd ', 'disco rígido',
                         'gabinete', 'fonte', 'water cooler', 'watercooler', 'air cooler', 'rtx', 'gtx', 'rx ',
                         'radeon', 'nvidia', 'amd', 'mouse', 'teclado', 'headset', 'monitor', 'cadeira gamer',
                         'joystick', 'gamepad', 'controle', 'nintendo switch', 'playstation', 'xbox',
-                        'ps4', 'ps5', 'xbox series', 'notebook', 'laptop', 'macbook', 'setup'
+                        'ps4', 'ps5', 'xbox series', 'notebook', 'laptop', 'macbook', 'setup',
+                        'fone de ouvido', 'microfone', 'webcam', 'roteador', 'pendrive', 'micro sd',
+                        'celular', 'smartphone', 'iphone', 'galaxy', 'poco', 'xiaomi', 'smart tv', 'tv '
                     ];
 
                     // Ignorar eletrodomésticos, cozinha, higiene (Filtro negativo)
