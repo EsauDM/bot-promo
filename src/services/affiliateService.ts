@@ -106,8 +106,15 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
     }
 
     if (affiliateSecondaryLink) {
-        message += `🔗 ${affiliateLink}\n`;
-        message += `🔗 ${affiliateSecondaryLink}\n\n`;
+        if (affiliateLink.includes('coin-index') || affiliateSecondaryLink.includes('coin-index')) {
+            const coinLink = affiliateLink.includes('coin-index') ? affiliateLink : affiliateSecondaryLink;
+            const directLink = affiliateLink.includes('coin-index') ? affiliateSecondaryLink : affiliateLink;
+            message += `🪙 Link com moedas 👇\n${coinLink}\n\n`;
+            message += `🔗 Link direto 👇\n${directLink}\n\n`;
+        } else {
+            message += `🔗 Opção 1: ${affiliateLink}\n`;
+            message += `🔗 Opção 2: ${affiliateSecondaryLink}\n\n`;
+        }
     } else {
         message += `${affiliateLink}\n\n`;
     }
