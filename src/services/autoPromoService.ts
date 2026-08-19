@@ -75,7 +75,10 @@ async function scrapeOffers(): Promise<Promo[]> {
                 const lowerHtml = msgHtml.toLowerCase();
                 
                 const photoMatch = blockHtml.match(/tgme_widget_message_photo_wrap[^>]*background-image:url\('([^']+)'\)/);
-                const photoUrl = photoMatch ? photoMatch[1] : undefined;
+                let photoUrl = photoMatch ? photoMatch[1] : undefined;
+                if (photoUrl && photoUrl.startsWith('//')) {
+                    photoUrl = 'https:' + photoUrl;
+                }
                 
                 // Filtro Positivo
                 const pcKeywords = [
@@ -218,7 +221,25 @@ async function checkAndSendPromo(socket: any) {
                 for (const groupId of activeGroups) {
                     try {
                         if (promo.photoUrl) {
-                            await socket.sendMessage(groupId, { image: { url: promo.photoUrl }, caption: message });
+                            let imagePayload: any = { url: promo.photoUrl };
+                            
+                            // Tenta baixar a imagem com fetch para evitar bloqueios do Baileys
+                            try {
+                                let downloadUrl = promo.photoUrl;
+                                if (downloadUrl.startsWith('//')) {
+                                    downloadUrl = 'https:' + downloadUrl;
+                                }
+                                
+                                const imgRes = await fetch(downloadUrl);
+                                if (imgRes.ok) {
+                                    const arrayBuffer = await imgRes.arrayBuffer();
+                                    imagePayload = Buffer.from(arrayBuffer);
+                                }
+                            } catch (downloadErr) {
+                                console.error('Erro ao baixar imagem manualmente:', downloadErr);
+                            }
+
+                            await socket.sendMessage(groupId, { image: imagePayload, caption: message });
                         } else {
                             await socket.sendMessage(groupId, { text: message });
                         }
