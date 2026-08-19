@@ -212,13 +212,24 @@ async function checkAndSendPromo(socket: any) {
         const activeGroups = await getActiveGroups();
         if (activeGroups.length === 0) return;
 
-        let sentCount = 0;
+        let sentAmazon = 0;
+        let sentAli = 0;
+        let sentShopee = 0;
+
         // Processa todas as promoções encontradas (da mais antiga para a mais nova)
         for (const promo of promos.reverse()) {
-            if (sentCount >= 5) {
-                console.log(`⏳ [AutoPromo] Limite de 5 ofertas atingido neste ciclo. As demais ficam para os próximos minutos.`);
+            if (sentAmazon >= 5 && sentAli >= 5 && sentShopee >= 5) {
+                console.log(`⏳ [AutoPromo] Limites de todas as plataformas atingidos neste ciclo.`);
                 break;
             }
+
+            const isAmazon = promo.link.includes('amazon') || promo.link.includes('amzn.to');
+            const isAli = promo.link.includes('aliexpress') || promo.link.includes('ali.ski');
+            const isShopee = promo.link.includes('shopee') || promo.link.includes('shope.ee');
+
+            if (isAmazon && sentAmazon >= 5) continue;
+            if (isAli && sentAli >= 5) continue;
+            if (isShopee && sentShopee >= 5) continue;
 
             // Verifica se já enviamos essa promoção
             try {
@@ -269,8 +280,12 @@ async function checkAndSendPromo(socket: any) {
                 // Salva no banco que enviamos
                 try {
                     await db.run('INSERT INTO sent_promos (link) VALUES (?)', [promo.link]);
-                    sentCount++;
-                    // Delay de 10s entre ofertas enviadas
+                    
+                    if (isAmazon) sentAmazon++;
+                    if (isAli) sentAli++;
+                    if (isShopee) sentShopee++;
+
+                    // Delay de 10s entre ofertas enviadas para não tomar ban do WhatsApp
                     await new Promise(resolve => setTimeout(resolve, 10000));
                 } catch (err2) {
                     console.error('Falha ao salvar promo no BD', err2);
