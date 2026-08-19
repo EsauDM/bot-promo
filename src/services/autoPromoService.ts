@@ -3,12 +3,26 @@ import { generateAffiliateMessage } from './affiliateService';
 import { getDb } from '../database/db';
 
 const TELEGRAM_CHANNELS = [
+    // Canais focados em Hardware e Gamer
     'https://t.me/s/nerdofertas',
     'https://t.me/s/promosadrenaline',
     'https://t.me/s/pcbuildbr',
     'https://t.me/s/ofertas_pc_gamer',
     'https://t.me/s/PromosGamerBR',
-    'https://t.me/s/BenchPromos'
+    'https://t.me/s/BenchPromos',
+    'https://t.me/s/gatunodeofertas',
+    'https://t.me/s/TioBalaOfertas',
+    'https://t.me/s/DicasPC',
+    'https://t.me/s/ofertas_gamer',
+    
+    // Canais Gigantes Genéricos (O bot vai filtrar apenas os itens de PC/Gamer desses canais automaticamente)
+    'https://t.me/s/pelando',
+    'https://t.me/s/promobit',
+    'https://t.me/s/canaltech_ofertas',
+    'https://t.me/s/ofertastecnoblog',
+    'https://t.me/s/QualyPromo',
+    'https://t.me/s/promosninjas',
+    'https://t.me/s/PromocoeseOfertas'
 ];
 
 export async function initAutoPromo(socket: any) {
