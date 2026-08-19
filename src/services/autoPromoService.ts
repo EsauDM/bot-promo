@@ -188,8 +188,14 @@ async function checkAndSendPromo(socket: any) {
         const activeGroups = await getActiveGroups();
         if (activeGroups.length === 0) return;
 
+        let sentCount = 0;
         // Processa todas as promoções encontradas (da mais antiga para a mais nova)
         for (const promo of promos) {
+            if (sentCount >= 3) {
+                console.log(`⏳ [AutoPromo] Limite de 3 ofertas atingido neste ciclo. As demais ficam para os próximos minutos.`);
+                break;
+            }
+
             // Verifica se já enviamos essa promoção
             try {
                 const row = await db.get('SELECT link FROM sent_promos WHERE link = ?', [promo.link]);
@@ -222,6 +228,9 @@ async function checkAndSendPromo(socket: any) {
             // Salva no banco que enviamos
             try {
                 await db.run('INSERT INTO sent_promos (link) VALUES (?)', [promo.link]);
+                sentCount++;
+                // Delay de 10s entre ofertas enviadas
+                await new Promise(resolve => setTimeout(resolve, 10000));
             } catch (err2) {
                 console.error('Falha ao salvar promo no BD', err2);
             }
