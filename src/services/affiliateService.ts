@@ -95,11 +95,15 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
         message += `${instructions}\n\n`;
     }
     
-    let priceToShow = newPrice || oldPrice || "Preço Especial!";
-    if (priceToShow.toLowerCase().includes("r$")) {
-        message += `💵  ${priceToShow}\n`;
+    let priceToShow = newPrice || oldPrice;
+    if (priceToShow) {
+        if (priceToShow.toLowerCase().includes("r$")) {
+            message += `💵  ${priceToShow}\n`;
+        } else {
+            message += `💵  R$ ${priceToShow}\n`;
+        }
     } else {
-        message += `💵  R$ ${priceToShow}\n`;
+        message += `💵  Preço Especial no link!\n`;
     }
 
     if (coupon) {

@@ -72,9 +72,13 @@ async function checkAndSendPromo(socket: any) {
                         if (urlMatch) {
                             const originalLink = urlMatch[1];
                             
+                            // Função rápida para limpar HTML entities
+                            const decodeHtml = (text: string) => text.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#036;/g, '$');
+                            
                             // Extrai o título
                             let rawTitle = msgHtml.split('<br/>')[0].replace(/<[^>]*>?/gm, '').trim();
                             if (!rawTitle || rawTitle.length < 5) rawTitle = "Mega Promoção Gamer!";
+                            rawTitle = decodeHtml(rawTitle);
 
                             // Extrai preços
                             const prices = msgHtml.match(/R(?:\$|&#036;)\s?[\d\.,]+/g);
@@ -103,7 +107,7 @@ async function checkAndSendPromo(socket: any) {
                                     const line = lines[j];
                                     const lowLine = line.toLowerCase();
                                     if (!lowLine.includes('r$') && !lowLine.includes('http') && !lowLine.includes('cupom')) {
-                                        instructions = line;
+                                        instructions = decodeHtml(line);
                                         break;
                                     }
                                 }
