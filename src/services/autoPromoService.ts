@@ -129,12 +129,12 @@ async function checkAndSendPromo(socket: any) {
                             
                             if (lines.length > 1) {
                                 for (let j = 1; j < lines.length; j++) {
-                                    const line = lines[j];
-                                    const lowLine = line.toLowerCase();
+                                    const rawLine = decodeHtml(lines[j]);
+                                    const lowLine = rawLine.toLowerCase();
                                     const isAd = adKeywords.some(ad => lowLine.includes(ad));
                                     
                                     if (!lowLine.includes('r$') && !lowLine.includes('http') && !lowLine.includes('cupom') && !isAd) {
-                                        instructions = decodeHtml(line);
+                                        instructions = rawLine;
                                         break;
                                     }
                                 }
