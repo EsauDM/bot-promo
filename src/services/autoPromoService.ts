@@ -168,9 +168,17 @@ async function scrapeOffers(): Promise<Promo[]> {
 
                 if (lowerHtml.includes('amzn.to') || lowerHtml.includes('amazon.com') || lowerHtml.includes('link.amazon') || lowerHtml.includes('aliexpress.com') || lowerHtml.includes('ali.ski') || lowerHtml.includes('mercadolivre.com.br') || lowerHtml.includes('meli.la') || lowerHtml.includes('shopee.com.br') || lowerHtml.includes('shope.ee') || lowerHtml.includes('s.shopee.com.br')) {
                     const allUrls = [...msgHtml.matchAll(/href="(https:\/\/[^"]+)"/g)].map(m => m[1]);
-                    if (allUrls.length > 0) {
-                        let originalLink = allUrls[0];
-                        let secondaryLink = allUrls.length > 1 ? allUrls[1] : undefined;
+                    
+                    // Filtra links que são imagens, widgets da amazon ou links de outros grupos
+                    const validUrls = allUrls.filter(url => 
+                        !url.includes('telegra.ph') && 
+                        !url.includes('amazon-adsystem.com') && 
+                        !url.includes('t.me')
+                    );
+
+                    if (validUrls.length > 0) {
+                        let originalLink = validUrls[0];
+                        let secondaryLink = validUrls.length > 1 ? validUrls[1] : undefined;
 
                         if (originalLink.includes('coin-index') && secondaryLink) {
                             const temp = originalLink;
@@ -196,10 +204,17 @@ async function scrapeOffers(): Promise<Promo[]> {
                         // Função para limpar tags HTML
                         const stripHtml = (text: string) => text.replace(/<[^>]*>?/gm, '').trim();
 
-                        // Extrai título (pega a primeira linha útil)
+                        // Extrai título (ignora chamadas de clickbait que normalmente estão em TUDO MAIÚSCULO)
                         let title;
                         const lines = msgHtml.split(/<br\s*\/?>/i);
-                        if (lines.length > 0) {
+                        for (let i = 0; i < lines.length; i++) {
+                            const cleanLine = decodeHtml(stripHtml(lines[i]));
+                            if (cleanLine.length > 5 && cleanLine !== cleanLine.toUpperCase() && !cleanLine.includes('R$') && !cleanLine.includes('http')) {
+                                title = cleanLine;
+                                break;
+                            }
+                        }
+                        if (!title && lines.length > 0) {
                             title = decodeHtml(stripHtml(lines[0]));
                         }
 
