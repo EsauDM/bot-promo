@@ -116,7 +116,11 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
             message += `🔗 Opção 2: ${affiliateSecondaryLink}\n\n`;
         }
     } else {
-        message += `${affiliateLink}\n\n`;
+        if (affiliateLink.includes('coin-index')) {
+            message += `🪙 Link com moedas 👇\n${affiliateLink}\n\n`;
+        } else {
+            message += `🔗 Link direto 👇\n${affiliateLink}\n\n`;
+        }
     }
 
     message += `(ANUNCIO)\n\n`;
