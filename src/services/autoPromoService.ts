@@ -30,7 +30,14 @@ const TELEGRAM_CHANNELS = [
     'https://t.me/s/ofertas_amazon_brasil',
     'https://t.me/s/aliexpressbr_oficial',
     'https://t.me/s/cupons_ali',
-    'https://t.me/s/promos_amazon_br'
+    'https://t.me/s/promos_amazon_br',
+    
+    // Focados em Shopee
+    'https://t.me/s/achadinhos_shopee_brasil',
+    'https://t.me/s/shopee_promos_br',
+    'https://t.me/s/ofertas_shopee_br',
+    'https://t.me/s/promo_shopee_br',
+    'https://t.me/s/shopeebroficial'
 ];
 
 export async function initAutoPromo(socket: any) {
