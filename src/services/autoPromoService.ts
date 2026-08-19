@@ -127,28 +127,43 @@ async function scrapeOffers(): Promise<Promo[]> {
                             }
                         }
 
-                        const titleMatch = msgHtml.match(/➡️\s*([^<]+)/);
-                        const title = titleMatch ? decodeHtml(titleMatch[1].trim()) : undefined;
+                        // Função para limpar tags HTML
+                        const stripHtml = (text: string) => text.replace(/<[^>]*>?/gm, '').trim();
 
+                        // Extrai título (pega a primeira linha útil)
+                        let title;
+                        const lines = msgHtml.split(/<br\s*\/?>/i);
+                        if (lines.length > 0) {
+                            title = decodeHtml(stripHtml(lines[0]));
+                        }
+
+                        // Extrai cupom
                         let coupon;
                         const couponMatch = msgHtml.match(/cupom:?\s*([A-Za-z0-9]+)/i);
                         if (couponMatch) {
                             coupon = couponMatch[1];
                         }
 
+                        // Extrai as instruções de compra (Filtro para ignorar ad de outros canais)
                         let instructions;
-                        const lines = msgHtml.split('<br/>');
                         const adKeywords = ['t.me', 'grupo', 'nerdofertas', 'ofertas', 'inscreva', 'link'];
                         
                         if (lines.length > 1) {
                             for (let j = 1; j < lines.length; j++) {
-                                const rawLine = decodeHtml(lines[j]);
-                                const lowLine = rawLine.toLowerCase();
+                                // Limpa tags HTML da linha para não vazar código de emoji
+                                const cleanLine = stripHtml(decodeHtml(lines[j]));
+                                if (!cleanLine) continue;
+
+                                const lowLine = cleanLine.toLowerCase();
                                 const isAd = adKeywords.some(ad => lowLine.includes(ad));
                                 
+                                // Não pega linhas que tenham preço, link, cupom ou propagandas
                                 if (!lowLine.includes('r$') && !lowLine.includes('http') && !lowLine.includes('cupom') && !isAd) {
-                                    instructions = rawLine;
-                                    break;
+                                    // Ignora linhas inúteis genéricas
+                                    if (cleanLine.length > 3) {
+                                        instructions = cleanLine;
+                                        break;
+                                    }
                                 }
                             }
                         }
