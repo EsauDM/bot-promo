@@ -65,12 +65,20 @@ async function checkAndSendPromo(socket: any) {
                         continue; // Pula se não for peça de PC/periférico ou se for eletrodoméstico
                     }
 
-                    // Só pegamos ofertas que tenham link da Amazon, AliExpress, Mercado Livre ou Shopee
+                    // Só pegamos ofertas que tenham link das lojas que trabalhamos
                     if (lowerHtml.includes('amzn.to') || lowerHtml.includes('amazon.com') || lowerHtml.includes('link.amazon') || lowerHtml.includes('aliexpress.com') || lowerHtml.includes('ali.ski') || lowerHtml.includes('mercadolivre.com.br') || lowerHtml.includes('meli.la') || lowerHtml.includes('shopee.com.br') || lowerHtml.includes('shope.ee')) {
-                        // Extrai o primeiro link
-                        const urlMatch = msgHtml.match(/href="(https:\/\/[^"]+)"/);
-                        if (urlMatch) {
-                            const originalLink = urlMatch[1];
+                        // Extrai os links
+                        const allUrls = [...msgHtml.matchAll(/href="(https:\/\/[^"]+)"/g)].map(m => m[1]);
+                        if (allUrls.length > 0) {
+                            let originalLink = allUrls[0];
+                            let secondaryLink = allUrls.length > 1 ? allUrls[1] : undefined;
+                            
+                            // Para padronizar, se o primeiro for moedas, invertemos (Produto fica primeiro, moedas fica como secundário)
+                            if (originalLink.includes('coin-index') && secondaryLink) {
+                                const temp = originalLink;
+                                originalLink = secondaryLink;
+                                secondaryLink = temp;
+                            }
                             
                             // Função rápida para limpar HTML entities
                             const decodeHtml = (text: string) => text.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#036;/g, '$');
@@ -137,7 +145,7 @@ async function checkAndSendPromo(socket: any) {
                                 }
                             }
 
-                            promos.push({ link: originalLink, title: rawTitle, oldPrice, newPrice, coupon, instructions, image: imageBuffer });
+                            promos.push({ link: originalLink, secondaryLink, title: rawTitle, oldPrice, newPrice, coupon, instructions, image: imageBuffer });
                         }
                     }
                 }
@@ -169,7 +177,7 @@ async function checkAndSendPromo(socket: any) {
             }
 
             // Não foi enviada, então vamos enviar!
-            const promoMessage = await generateAffiliateMessage(promo.link, promo.title, promo.oldPrice, promo.newPrice, promo.coupon, promo.instructions);
+            const promoMessage = await generateAffiliateMessage(promo.link, promo.title, promo.oldPrice, promo.newPrice, promo.coupon, promo.instructions, promo.secondaryLink);
             
             console.log(`🚀 [AutoPromo] Disparando nova oferta: ${promo.title}`);
             
