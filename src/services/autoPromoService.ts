@@ -99,14 +99,18 @@ async function checkAndSendPromo(socket: any) {
                                 coupon = couponMatch[1].trim();
                             }
 
-                            // Extrai instruções
+                            // Extrai instruções (ignorando propagandas do grupo original)
                             let instructions = undefined;
+                            const adKeywords = ['nerdofertas.com', 't.me', 'mais grupos', 'mais ofertas', 'nosso grupo', 'nosso canal', 'participe do', 'siga o', 'instagram', 'whatsapp'];
                             const lines = msgHtml.split(/<br\s*\/?>/i).map(l => l.replace(/<[^>]*>?/gm, '').trim()).filter(l => l.length > 0);
+                            
                             if (lines.length > 1) {
                                 for (let j = 1; j < lines.length; j++) {
                                     const line = lines[j];
                                     const lowLine = line.toLowerCase();
-                                    if (!lowLine.includes('r$') && !lowLine.includes('http') && !lowLine.includes('cupom')) {
+                                    const isAd = adKeywords.some(ad => lowLine.includes(ad));
+                                    
+                                    if (!lowLine.includes('r$') && !lowLine.includes('http') && !lowLine.includes('cupom') && !isAd) {
                                         instructions = decodeHtml(line);
                                         break;
                                     }
