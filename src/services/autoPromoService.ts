@@ -55,7 +55,8 @@ async function checkAndSendPromo(socket: any) {
                     const ignoreKeywords = [
                         'liquidificador', 'fritadeira', 'airfryer', 'fralda', 'sabão', 'sabonete', 'shampoo', 
                         'desodorante', 'cafeteira', 'geladeira', 'fogão', 'microondas', 'micro-ondas', 'aspirador', 
-                        'ferro de passar', 'perfume', 'maquiagem', 'creme'
+                        'ferro de passar', 'perfume', 'maquiagem', 'creme', 'multiprocessador', 'oster', 'batedeira', 
+                        'mixer', 'panela', 'forno'
                     ];
 
                     const isPcOrPeripheral = pcKeywords.some(keyword => lowerHtml.includes(keyword));
