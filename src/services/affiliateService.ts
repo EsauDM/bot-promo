@@ -7,22 +7,12 @@ export function extractLink(text: string): string | null {
     return matches ? matches[0] : null;
 }
 
-export async function generateAffiliateMessage(originalLink: string, customTitle?: string, oldPrice?: string, newPrice?: string): Promise<string> {
+export async function generateAffiliateMessage(originalLink: string, customTitle?: string, oldPrice?: string, newPrice?: string, coupon?: string, instructions?: string): Promise<string> {
     const affiliateTag = process.env.AFFILIATE_TAG || 'minhatag-20';
     let affiliateLink = originalLink;
     
-    // Se o Admin enviou um título ou preço junto com o comando, usamos eles. Se não, usamos o padrão.
-    let title = customTitle ? `🔥 *${customTitle.trim()}* 🔥` : "🔥 *SUPER OFERTA DETECTADA!* 🔥";
+    let title = customTitle ? customTitle.trim() : "SUPER OFERTA DETECTADA!";
     
-    let priceSection = "";
-    if (oldPrice && newPrice) {
-        priceSection = `❌ De: ~${oldPrice.trim()}~\n✅ Por apenas: *${newPrice.trim()}*`;
-    } else if (oldPrice && !newPrice) {
-        priceSection = `💸 Por apenas: *${oldPrice.trim()}*`;
-    } else {
-        priceSection = `💸 Preço Especial!`;
-    }
-
     if (originalLink.includes('amazon.com.br') || originalLink.includes('amzn.to') || originalLink.includes('link.amazon')) {
         try {
             const url = new URL(originalLink);
@@ -80,14 +70,28 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
         }
     }
     
-    const message = `
-${title}
+    // Montando o modelo requisitado
+    let message = `${title}\n\n`;
+    
+    if (instructions) {
+        message += `${instructions}\n\n`;
+    }
+    
+    let priceToShow = newPrice || oldPrice || "Preço Especial!";
+    if (priceToShow.toLowerCase().includes("r$")) {
+        message += `💵  ${priceToShow}\n`;
+    } else {
+        message += `💵  R$ ${priceToShow}\n`;
+    }
 
-${priceSection}
-🛍️ *Compre aqui:* ${affiliateLink}
+    if (coupon) {
+        message += `🎟️  Cupom: ${coupon}\n`;
+    }
 
-🚀 _Promoção por tempo limitado!_
-    `.trim();
+    message += `${affiliateLink}\n\n`;
+    message += `(ANUNCIO)\n\n`;
+    message += `🏆Amazon prime (30 dias grátis)\n`;
+    message += `https://amzn.to/4lM3PHH`;
 
     return message;
 }
