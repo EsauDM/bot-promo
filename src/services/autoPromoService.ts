@@ -114,7 +114,7 @@ async function scrapeOffers(): Promise<Promo[]> {
                     continue; 
                 }
 
-                if (lowerHtml.includes('amzn.to') || lowerHtml.includes('amazon.com') || lowerHtml.includes('link.amazon') || lowerHtml.includes('aliexpress.com') || lowerHtml.includes('ali.ski') || lowerHtml.includes('mercadolivre.com.br') || lowerHtml.includes('meli.la') || lowerHtml.includes('shopee.com.br') || lowerHtml.includes('shope.ee')) {
+                if (lowerHtml.includes('amzn.to') || lowerHtml.includes('amazon.com') || lowerHtml.includes('link.amazon') || lowerHtml.includes('aliexpress.com') || lowerHtml.includes('ali.ski') || lowerHtml.includes('mercadolivre.com.br') || lowerHtml.includes('meli.la') || lowerHtml.includes('shopee.com.br') || lowerHtml.includes('shope.ee') || lowerHtml.includes('s.shopee.com.br')) {
                     const allUrls = [...msgHtml.matchAll(/href="(https:\/\/[^"]+)"/g)].map(m => m[1]);
                     if (allUrls.length > 0) {
                         let originalLink = allUrls[0];

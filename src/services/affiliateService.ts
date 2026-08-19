@@ -65,13 +65,21 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
         } else if (link.includes('shopee.com.br') || link.includes('shope.ee')) {
             let targetUrl = link;
             try {
-                if (link.includes('shope.ee')) {
+                if (link.includes('shope.ee') || link.includes('s.shopee.com.br')) {
                      const response = await fetch(link, { redirect: 'manual' });
                      targetUrl = response.headers.get('location') || link;
                 }
                 const shopeeId = process.env.SHOPEE_AFFILIATE_ID || '';
                 if (shopeeId) {
-                     convertedLink = `https://shopee.com.br/universal-link?redir=${encodeURIComponent(targetUrl)}&smtt=0.0.9&aff_id=${shopeeId}`;
+                     // Extrai a URL final limpa se ela tiver redirecionamentos na string
+                     const urlObj = new URL(targetUrl);
+                     urlObj.searchParams.delete('aff_id');
+                     urlObj.searchParams.delete('mmp_pid');
+                     urlObj.searchParams.delete('utm_source');
+                     urlObj.searchParams.delete('utm_medium');
+                     urlObj.searchParams.delete('utm_campaign');
+                     
+                     convertedLink = `https://shopee.com.br/universal-link?redir=${encodeURIComponent(urlObj.toString())}&smtt=0.0.9&aff_id=${shopeeId}&utm_source=an_${shopeeId}&utm_medium=affiliates`;
                 } else {
                      convertedLink = targetUrl;
                 }
