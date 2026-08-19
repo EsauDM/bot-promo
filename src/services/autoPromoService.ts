@@ -118,13 +118,17 @@ async function scrapeOffers(): Promise<Promo[]> {
                             originalLink = secondaryLink;
                             secondaryLink = temp;
                         }
+                        
+                        const decodedMsgHtml = decodeHtml(msgHtml);
 
-                        const priceMatch = msgHtml.match(/R\$\s*[\d\.,]+/i);
+                        // Extrai o preço (ex: R$ 1.200,00)
+                        const priceMatch = decodedMsgHtml.match(/R\$\s*[\d\.,]+/i);
                         const price = priceMatch ? priceMatch[0] : undefined;
 
+                        // Pega a linha original que continha o preço (para ver se tinha um "De: " ou "Por: ")
                         let oldPrice;
-                        if (price && msgHtml.includes('De:')) {
-                            const oldPriceMatch = msgHtml.match(/De:\s*R\$\s*[\d\.,]+/i);
+                        if (price && decodedMsgHtml.includes('De:')) {
+                            const oldPriceMatch = decodedMsgHtml.match(/De:\s*R\$\s*[\d\.,]+/i);
                             if (oldPriceMatch) {
                                 oldPrice = oldPriceMatch[0];
                             }
