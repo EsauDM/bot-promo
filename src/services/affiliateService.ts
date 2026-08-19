@@ -65,6 +65,9 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                 // Fallback para deep link caso ainda não tenha as chaves na ENV
                 affiliateLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
             }
+        } catch (e) {
+            console.error('Erro na conversão do AliExpress:', e);
+        }
     } else if (originalLink.includes('shopee.com.br') || originalLink.includes('shope.ee')) {
         let targetUrl = originalLink;
         try {
