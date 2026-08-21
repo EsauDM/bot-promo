@@ -83,7 +83,7 @@ interface Promo {
     niche?: string;
 }
 
-async function scrapeOffers(): Promise<Promo[]> {
+export async function scrapeOffers(): Promise<Promo[]> {
     const promos: Promo[] = [];
     
     for (const channelUrl of TELEGRAM_CHANNELS) {
@@ -139,6 +139,18 @@ async function scrapeOffers(): Promise<Promo[]> {
                         negative: [
                             'pc', 'gamer', 'placa de vídeo', 'processador', 'ryzen', 'intel', 'ssd', 'memória ram'
                         ]
+                    },
+                    masculino: {
+                        positive: [
+                            'ferramenta', 'parafusadeira', 'furadeira', 'chave de fenda', 'chave philips', 'chave de grifo',
+                            'chave allen', 'serra', 'trena', 'esmerilhadeira', 'lixadeira', 'martelete', 'compressor',
+                            'macaco hidráulico', 'pneu', 'som automotivo', 'óleo de motor', 'lavadora de alta pressão', 
+                            'wap', 'relógio', 'barbeador', 'aparador de pelos', 'canivete', 'lanterna', 'barraca',
+                            'multímetro', 'solda', 'furadeira de impacto', 'kit de ferramentas', 'roçadeira', 'soprador'
+                        ],
+                        negative: [
+                            'maquiagem', 'perfume feminino', 'vestido', 'bolsa feminina', 'salto alto', 'feminino'
+                        ]
                     }
                 };
 
@@ -148,7 +160,7 @@ async function scrapeOffers(): Promise<Promo[]> {
                 for (const [nicheName, rules] of Object.entries(nichesConfig)) {
                     const isPositive = (rules as any).positive.some((keyword: string) => {
                         const kw = keyword.trim();
-                        if (['pc', 'hd', 'tv', 'rx', 'gtx', 'rtx', 'iphone', 'macbook', 'ipad', 'ssd', 'cama'].includes(kw)) {
+                        if (['pc', 'hd', 'tv', 'rx', 'gtx', 'rtx', 'iphone', 'macbook', 'ipad', 'ssd', 'cama', 'wap', 'pneu', 'som'].includes(kw)) {
                             return new RegExp(`\\b${kw}\\b`, 'i').test(lowerHtml);
                         }
                         return lowerHtml.includes(keyword);
