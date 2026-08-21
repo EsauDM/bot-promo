@@ -151,6 +151,19 @@ export async function scrapeOffers(): Promise<Promo[]> {
                         negative: [
                             'maquiagem', 'perfume feminino', 'vestido', 'bolsa feminina', 'salto alto', 'feminino'
                         ]
+                    },
+                    perfumes: {
+                        positive: [
+                            'perfume', 'fragrância', 'fragrancia', 'eau de parfum', 'eau de toilette', 'edp', 'edt', 
+                            'colônia', 'cosmético', 'skincare', 'maquiagem', 'batom', 'gloss', 'base', 'sérum', 'serum',
+                            'hidratante', 'creme', 'loção', 'shampoo', 'condicionador', 'protetor solar', 'sabonete',
+                            'oboticário', 'boticário', 'natura', 'eudora', 'lattafa', 'afnan', 'armaf', 'dior', 'chanel',
+                            'paco rabanne', 'carolina herrera', 'ysl', 'lancôme', 'lancome', 'mac', 'quem disse berenice',
+                            'vult', 'niina secrets', 'virginia', 'wepink', 'árabe', 'arabe', 'importado'
+                        ],
+                        negative: [
+                            'pc', 'hardware', 'placa de vídeo', 'processador', 'tv', 'geladeira', 'fogão', 'pneu'
+                        ]
                     }
                 };
 
@@ -160,7 +173,7 @@ export async function scrapeOffers(): Promise<Promo[]> {
                 for (const [nicheName, rules] of Object.entries(nichesConfig)) {
                     const isPositive = (rules as any).positive.some((keyword: string) => {
                         const kw = keyword.trim();
-                        if (['pc', 'hd', 'tv', 'rx', 'gtx', 'rtx', 'iphone', 'macbook', 'ipad', 'ssd', 'cama', 'wap', 'pneu', 'som'].includes(kw)) {
+                        if (['pc', 'hd', 'tv', 'rx', 'gtx', 'rtx', 'iphone', 'macbook', 'ipad', 'ssd', 'cama', 'wap', 'pneu', 'som', 'edp', 'edt', 'mac', 'ysl', 'vult'].includes(kw)) {
                             return new RegExp(`\\b${kw}\\b`, 'i').test(lowerHtml);
                         }
                         return lowerHtml.includes(keyword);
