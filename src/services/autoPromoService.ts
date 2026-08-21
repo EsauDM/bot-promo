@@ -163,7 +163,8 @@ export async function scrapeOffers(): Promise<Promo[]> {
                             'liquidificador', 'fritadeira', 'airfryer', 'fralda', 'sabão', 'sabonete', 'shampoo', 
                             'desodorante', 'cafeteira', 'geladeira', 'fogão', 'microondas', 'micro-ondas', 'aspirador', 
                             'ferro de passar', 'perfume', 'maquiagem', 'creme', 'multiprocessador', 'oster', 'batedeira', 
-                            'mixer', 'panela', 'forno', 'gloss', 'batom', 'skincare', 'hidratante', 'cabelo'
+                            'mixer', 'panela', 'forno', 'gloss', 'batom', 'skincare', 'hidratante', 'cabelo',
+                            'ômega', 'omega', 'vitamina', 'suplemento', 'cápsula', 'capsula', 'whey', 'creatina', 'óleo de peixe', 'alimento'
                         ]
                     },
                     casa: {
