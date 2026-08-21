@@ -211,7 +211,7 @@ export async function scrapeOffers(): Promise<Promo[]> {
                 for (const [nicheName, rules] of Object.entries(nichesConfig)) {
                     const isPositive = (rules as any).positive.some((keyword: string) => {
                         const kw = keyword.trim();
-                        if (['pc', 'hd', 'tv', 'rx', 'gtx', 'rtx', 'iphone', 'macbook', 'ipad', 'ssd', 'cama', 'wap', 'pneu', 'som', 'edp', 'edt', 'mac', 'ysl', 'vult'].includes(kw)) {
+                        if (['pc', 'hd', 'tv', 'rx', 'gtx', 'rtx', 'iphone', 'macbook', 'ipad', 'ssd', 'cama', 'wap', 'pneu', 'som', 'edp', 'edt', 'mac', 'ysl', 'vult', 'natura', 'mesa', 'serra', 'solda', 'amd'].includes(kw)) {
                             return new RegExp(`\\b${kw}\\b`, 'i').test(lowerHtml);
                         }
                         return lowerHtml.includes(keyword);
