@@ -15,7 +15,15 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
         let convertedLink = link;
         if (link.includes('amazon.com.br') || link.includes('amzn.to') || link.includes('link.amazon')) {
             try {
-                const url = new URL(link);
+                let targetUrl = link;
+                if (link.includes('amzn.to') || link.includes('link.amazon') || link.includes('/dp/') || link.includes('/d/')) {
+                    const response = await fetch(link, { redirect: 'manual' });
+                    targetUrl = response.headers.get('location') || link;
+                    if (targetUrl.startsWith('/')) {
+                        targetUrl = 'https://www.amazon.com.br' + targetUrl;
+                    }
+                }
+                const url = new URL(targetUrl);
                 url.searchParams.set('tag', affiliateTag);
                 convertedLink = url.toString();
             } catch(e) {}
@@ -44,6 +52,11 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                 urlObj.searchParams.delete('sk');
                 urlObj.searchParams.delete('terminal_id');
                 urlObj.searchParams.delete('tt');
+                urlObj.searchParams.delete('from');
+                urlObj.searchParams.delete('afSmartRedirect');
+                urlObj.searchParams.delete('utm_source');
+                urlObj.searchParams.delete('utm_medium');
+                urlObj.searchParams.delete('utm_campaign');
                 
                 const cleanTargetUrl = urlObj.toString();
 
@@ -62,6 +75,24 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                     convertedLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
                 }
             } catch (e) { console.error('Erro na conversão do AliExpress:', e); }
+        } else if (link.includes('mercadolivre.com.br') || link.includes('meli.la')) {
+            try {
+                let targetUrl = link;
+                if (link.includes('meli.la')) {
+                     const response = await fetch(link, { redirect: 'manual' });
+                     targetUrl = response.headers.get('location') || link;
+                }
+                const urlObj = new URL(targetUrl);
+                urlObj.searchParams.delete('matt_tool');
+                urlObj.searchParams.delete('matt_word');
+                urlObj.searchParams.delete('af_click_lookback');
+                urlObj.searchParams.delete('af_tracker');
+                urlObj.searchParams.delete('campaign_id');
+                urlObj.searchParams.delete('utm_source');
+                urlObj.searchParams.delete('utm_medium');
+                urlObj.searchParams.delete('utm_campaign');
+                convertedLink = urlObj.toString();
+            } catch(e) {}
         } else if (link.includes('shopee.com.br') || link.includes('shope.ee')) {
             let targetUrl = link;
             try {
@@ -70,18 +101,18 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                      targetUrl = response.headers.get('location') || link;
                 }
                 const shopeeId = process.env.SHOPEE_AFFILIATE_ID || '';
+                // Extrai a URL final limpa se ela tiver redirecionamentos na string
+                const urlObj = new URL(targetUrl);
+                urlObj.searchParams.delete('aff_id');
+                urlObj.searchParams.delete('mmp_pid');
+                urlObj.searchParams.delete('utm_source');
+                urlObj.searchParams.delete('utm_medium');
+                urlObj.searchParams.delete('utm_campaign');
+                
                 if (shopeeId) {
-                     // Extrai a URL final limpa se ela tiver redirecionamentos na string
-                     const urlObj = new URL(targetUrl);
-                     urlObj.searchParams.delete('aff_id');
-                     urlObj.searchParams.delete('mmp_pid');
-                     urlObj.searchParams.delete('utm_source');
-                     urlObj.searchParams.delete('utm_medium');
-                     urlObj.searchParams.delete('utm_campaign');
-                     
                      convertedLink = `https://shopee.com.br/universal-link?redir=${encodeURIComponent(urlObj.toString())}&smtt=0.0.9&aff_id=${shopeeId}&utm_source=an_${shopeeId}&utm_medium=affiliates`;
                 } else {
-                     convertedLink = targetUrl;
+                     convertedLink = urlObj.toString();
                 }
             } catch (e) {}
         }

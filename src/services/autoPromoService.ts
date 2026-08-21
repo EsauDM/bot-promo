@@ -170,10 +170,12 @@ async function scrapeOffers(): Promise<Promo[]> {
                     const allUrls = [...msgHtml.matchAll(/href="(https:\/\/[^"]+)"/g)].map(m => m[1]);
                     
                     // Filtra links que são imagens, widgets da amazon ou links de outros grupos
+                    const allowedDomains = ['amzn.to', 'amazon.com', 'link.amazon', 'aliexpress.com', 'ali.ski', 'mercadolivre.com.br', 'meli.la', 'shopee.com.br', 'shope.ee', 's.shopee.com.br'];
                     const validUrls = allUrls.filter(url => 
                         !url.includes('telegra.ph') && 
                         !url.includes('amazon-adsystem.com') && 
-                        !url.includes('t.me')
+                        !url.includes('t.me') &&
+                        allowedDomains.some(domain => url.includes(domain))
                     );
 
                     if (validUrls.length > 0) {
@@ -239,7 +241,7 @@ async function scrapeOffers(): Promise<Promo[]> {
                                 const isAd = adKeywords.some(ad => lowLine.includes(ad));
                                 
                                 // Não pega linhas que tenham preço, link, cupom ou propagandas
-                                if (!lowLine.includes('r$') && !lowLine.includes('http') && !lowLine.includes('cupom') && !isAd) {
+                                if (!lowLine.includes('r$') && !lowLine.includes('http') && !lowLine.includes('cupom') && !isAd && !lowLine.match(/shope\.ee|shopee\.com|amzn\.to|amazon\.com|link\.amazon|aliexpress\.com|ali\.ski|meli\.la|mercadolivre\.com\.br/)) {
                                     // Ignora linhas inúteis genéricas
                                     if (cleanLine.length > 3) {
                                         instructions = cleanLine;
@@ -272,24 +274,22 @@ async function checkAndSendPromo(socket: any) {
         const activeGroups = await getActiveGroups();
         if (activeGroups.length === 0) return;
 
-        let sentAmazon = 0;
-        let sentAli = 0;
-        let sentShopee = 0;
+        const sentCounts: Record<string, { amazon: number, ali: number, shopee: number }> = {};
 
         // Processa todas as promoções encontradas (da mais antiga para a mais nova)
         for (const promo of promos.reverse()) {
-            if (sentAmazon >= 5 && sentAli >= 5 && sentShopee >= 5) {
-                console.log(`⏳ [AutoPromo] Limites de todas as plataformas atingidos neste ciclo.`);
-                break;
+            const niche = promo.niche || 'geral';
+            if (!sentCounts[niche]) {
+                sentCounts[niche] = { amazon: 0, ali: 0, shopee: 0 };
             }
 
             const isAmazon = promo.link.includes('amazon') || promo.link.includes('amzn.to');
             const isAli = promo.link.includes('aliexpress') || promo.link.includes('ali.ski');
             const isShopee = promo.link.includes('shopee') || promo.link.includes('shope.ee');
 
-            if (isAmazon && sentAmazon >= 5) continue;
-            if (isAli && sentAli >= 5) continue;
-            if (isShopee && sentShopee >= 5) continue;
+            if (isAmazon && sentCounts[niche].amazon >= 5) continue;
+            if (isAli && sentCounts[niche].ali >= 5) continue;
+            if (isShopee && sentCounts[niche].shopee >= 5) continue;
 
             // Verifica se já enviamos essa promoção
             try {
@@ -344,9 +344,9 @@ async function checkAndSendPromo(socket: any) {
                 try {
                     await db.run('INSERT INTO sent_promos (link) VALUES (?)', [promo.link]);
                     
-                    if (isAmazon) sentAmazon++;
-                    if (isAli) sentAli++;
-                    if (isShopee) sentShopee++;
+                    if (isAmazon) sentCounts[niche].amazon++;
+                    if (isAli) sentCounts[niche].ali++;
+                    if (isShopee) sentCounts[niche].shopee++;
 
                     // Delay de 10s entre ofertas enviadas para não tomar ban do WhatsApp
                     await new Promise(resolve => setTimeout(resolve, 10000));
