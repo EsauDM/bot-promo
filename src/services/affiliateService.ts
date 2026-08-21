@@ -16,12 +16,9 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
         if (link.includes('amazon.com.br') || link.includes('amzn.to') || link.includes('link.amazon')) {
             try {
                 let targetUrl = link;
-                if (link.includes('amzn.to') || link.includes('link.amazon') || link.includes('/dp/') || link.includes('/d/')) {
-                    const response = await fetch(link, { redirect: 'manual' });
-                    targetUrl = response.headers.get('location') || link;
-                    if (targetUrl.startsWith('/')) {
-                        targetUrl = 'https://www.amazon.com.br' + targetUrl;
-                    }
+                if (link.includes('amzn.to') || link.includes('link.amazon') || link.includes('/dp/') || link.includes('/d/') || link.includes('amzlinks.in')) {
+                    const response = await fetch(link);
+                    targetUrl = response.url || link;
                 }
                 const url = new URL(targetUrl);
                 url.searchParams.set('tag', affiliateTag);

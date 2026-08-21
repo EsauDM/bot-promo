@@ -60,6 +60,13 @@ const TELEGRAM_CHANNELS = [
     'https://t.me/s/perfumesimportados',
     'https://t.me/s/achadinhosdebeleza',
     'https://t.me/s/dicas_de_beleza_ofertas',
+    'https://t.me/s/garotasaoferta',
+    'https://t.me/s/promosdamaquiagem',
+    'https://t.me/s/oboticariopromos',
+    'https://t.me/s/naturapromos',
+    'https://t.me/s/clubedaspatroas',
+    'https://t.me/s/beleza_na_web_ofertas',
+    'https://t.me/s/dicas_de_skincare',
     
     // Novas Fontes Massivas (Hardware, Ali, Amazon e Gerais)
     'https://t.me/s/hardware_ofertas',
@@ -192,7 +199,7 @@ export async function scrapeOffers(): Promise<Promo[]> {
                             'vult', 'niina secrets', 'virginia', 'wepink', 'perfume árabe', 'perfume arabe'
                         ],
                         negative: [
-                            'pc', 'hardware', 'placa de vídeo', 'processador', 'tv', 'geladeira', 'fogão', 'pneu'
+                            'pc', 'hardware', 'placa de vídeo', 'processador', 'tv', 'geladeira', 'fogão', 'pneu', 'absorvente', 'fralda', 'papel higiênico', 'lenço', 'saco', 'lixo'
                         ]
                     }
                 };
@@ -226,7 +233,7 @@ export async function scrapeOffers(): Promise<Promo[]> {
                 const hasAli = !!process.env.ALIEXPRESS_KEY || (!!process.env.ALIEXPRESS_APP_KEY && !!process.env.ALIEXPRESS_APP_SECRET);
 
                 const dynamicAllowedDomains: string[] = [];
-                if (hasAmazon) dynamicAllowedDomains.push('amzn.to', 'amazon.com', 'link.amazon');
+                if (hasAmazon) dynamicAllowedDomains.push('amzn.to', 'amazon.com', 'link.amazon', 'amzlinks.in');
                 if (hasShopee) dynamicAllowedDomains.push('shopee.com.br', 'shope.ee', 's.shopee.com.br');
                 if (hasAli) dynamicAllowedDomains.push('aliexpress.com', 'ali.ski');
 
