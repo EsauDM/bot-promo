@@ -5,7 +5,11 @@ import { Boom } from '@hapi/boom';
 import { handleMessage } from '../handlers/messageHandler';
 import { initAutoPromo } from '../services/autoPromoService';
 
+let flushInterval: NodeJS.Timeout | null = null;
+
 export async function connectToWhatsApp() {
+    if (flushInterval) clearInterval(flushInterval);
+
     // Gestão de estado do Baileys para não precisar ler o QR Code toda vez
     const { state, saveCreds } = await useMultiFileAuthState('baileys_auth_info');
     const { version } = await fetchLatestBaileysVersion();
@@ -55,7 +59,7 @@ export async function connectToWhatsApp() {
     });
     
     // Limpa a fila de eventos a cada hora para evitar memory leak
-    setInterval(() => {
+    flushInterval = setInterval(() => {
         sock.ev.flush();
     }, 60 * 60 * 1000); 
 

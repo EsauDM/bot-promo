@@ -1,5 +1,18 @@
 # Logs de Atualização e Correções
 
+## 21 de Agosto de 2026 - Correção de "Connection Closed" e Vazamento de Memória
+
+**Problema:**
+O bot apresentava frequentemente erros de `Connection Closed` e `Precondition Required` no envio de mensagens de ofertas, deixando de enviar mensagens para alguns grupos.
+
+**O que causava o problema:**
+1. **Memory Leak e Conexões Zumbis:** Ao reconectar o Baileys, antigos `setInterval`s (em `autoPromoService.ts` e `connection.ts`) não eram cancelados. O bot passava a executar o serviço de envio múltiplas vezes usando instâncias velhas de sockets já fechados, gerando os erros.
+2. **Rate Limit e Precondition Required:** O envio simultâneo super-rápido para muitos grupos fazia o servidor do WhatsApp rejeitar o upload da mídia/foto.
+
+**Solução:**
+- Em `src/whatsapp/connection.ts` e `src/services/autoPromoService.ts`: Foram declaradas variáveis para armazenar os IDs (ex: `flushInterval`, `autoPromoInterval`) permitindo a limpeza com `clearInterval()` / `clearTimeout()` caso a conexão seja reiniciada. Isso previne o acúmulo de processos fantasma.
+- Adicionada uma função auxiliar `delay(ms)` em `autoPromoService.ts`. Agora há um pequeno delay de 1.5s entre o envio de grupos para aliviar a carga no Baileys. Se o envio falhar, há um sistema de *retry* (3 tentativas com espera de 3 segundos) para evitar perder grupos devido a falha momentânea de internet.
+
 ## 17 de Agosto de 2026 - Correção de Imagens e Preços Automáticos (Amazon e AliExpress)
 
 **Problema:**

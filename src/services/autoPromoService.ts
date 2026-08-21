@@ -90,11 +90,17 @@ const TELEGRAM_CHANNELS = [
     'https://t.me/s/promocoes_relampago_br'
 ];
 
+let autoPromoInterval: NodeJS.Timeout | null = null;
+let autoPromoTimeout: NodeJS.Timeout | null = null;
+
 export async function initAutoPromo(socket: any) {
+    if (autoPromoInterval) clearInterval(autoPromoInterval);
+    if (autoPromoTimeout) clearTimeout(autoPromoTimeout);
+
     // Inicia a verificação a cada 5 minutos (300000 ms)
-    setInterval(() => checkAndSendPromo(socket), 300000);
+    autoPromoInterval = setInterval(() => checkAndSendPromo(socket), 300000);
     // Também faz uma busca logo que iniciar
-    setTimeout(() => checkAndSendPromo(socket), 15000);
+    autoPromoTimeout = setTimeout(() => checkAndSendPromo(socket), 15000);
 }
 
 const decodeHtml = (text: string) => {
@@ -338,6 +344,9 @@ export async function scrapeOffers(): Promise<Promo[]> {
     return promos;
 }
 
+// Helper para atraso
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 async function checkAndSendPromo(socket: any) {
     try {
         const activeGroups = await getActiveGroups();
@@ -388,32 +397,47 @@ async function checkAndSendPromo(socket: any) {
                     if (group.niche !== promo.niche && group.niche !== 'geral') {
                         continue;
                     }
-                    try {
-                        if (promo.photoUrl) {
-                            let imagePayload: any = { url: promo.photoUrl };
-                            
-                            // Tenta baixar a imagem com fetch para evitar bloqueios do Baileys
-                            try {
-                                let downloadUrl = promo.photoUrl;
-                                if (downloadUrl.startsWith('//')) {
-                                    downloadUrl = 'https:' + downloadUrl;
-                                }
+                    
+                    let retries = 3;
+                    while (retries > 0) {
+                        try {
+                            if (promo.photoUrl) {
+                                let imagePayload: any = { url: promo.photoUrl };
                                 
-                                const imgRes = await fetch(downloadUrl);
-                                if (imgRes.ok) {
-                                    const arrayBuffer = await imgRes.arrayBuffer();
-                                    imagePayload = Buffer.from(arrayBuffer);
+                                // Tenta baixar a imagem com fetch para evitar bloqueios do Baileys
+                                try {
+                                    let downloadUrl = promo.photoUrl;
+                                    if (downloadUrl.startsWith('//')) {
+                                        downloadUrl = 'https:' + downloadUrl;
+                                    }
+                                    
+                                    const imgRes = await fetch(downloadUrl);
+                                    if (imgRes.ok) {
+                                        const arrayBuffer = await imgRes.arrayBuffer();
+                                        imagePayload = Buffer.from(arrayBuffer);
+                                    }
+                                } catch (downloadErr) {
+                                    console.error('Erro ao baixar imagem manualmente:', downloadErr);
                                 }
-                            } catch (downloadErr) {
-                                console.error('Erro ao baixar imagem manualmente:', downloadErr);
-                            }
 
-                            await socket.sendMessage(group.id, { image: imagePayload, caption: message });
-                        } else {
-                            await socket.sendMessage(group.id, { text: message });
+                                await socket.sendMessage(group.id, { image: imagePayload, caption: message });
+                            } else {
+                                await socket.sendMessage(group.id, { text: message });
+                            }
+                            
+                            // Pequeno delay entre o envio para grupos diferentes
+                            await delay(1500);
+                            break; // Sucesso, sai do loop de tentativas
+                        } catch (err: any) {
+                            console.error(`Erro ao enviar para o grupo ${group.id}:`, err);
+                            retries--;
+                            if (retries === 0) {
+                                console.error(`Falha final ao enviar para o grupo ${group.id} após tentativas.`);
+                            } else {
+                                console.log(`Tentando novamente em 3 segundos... (${retries} tentativas restantes)`);
+                                await delay(3000);
+                            }
                         }
-                    } catch (err) {
-                        console.error(`Erro ao enviar para o grupo ${group.id}:`, err);
                     }
                 }
 
