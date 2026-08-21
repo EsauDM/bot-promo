@@ -92,15 +92,19 @@ const TELEGRAM_CHANNELS = [
 
 let autoPromoInterval: NodeJS.Timeout | null = null;
 let autoPromoTimeout: NodeJS.Timeout | null = null;
+let globalSocket: any = null;
+let isChecking = false;
 
 export async function initAutoPromo(socket: any) {
+    globalSocket = socket;
+    
     if (autoPromoInterval) clearInterval(autoPromoInterval);
     if (autoPromoTimeout) clearTimeout(autoPromoTimeout);
 
     // Inicia a verificação a cada 5 minutos (300000 ms)
-    autoPromoInterval = setInterval(() => checkAndSendPromo(socket), 300000);
+    autoPromoInterval = setInterval(() => checkAndSendPromo(), 300000);
     // Também faz uma busca logo que iniciar
-    autoPromoTimeout = setTimeout(() => checkAndSendPromo(socket), 15000);
+    autoPromoTimeout = setTimeout(() => checkAndSendPromo(), 15000);
 }
 
 const decodeHtml = (text: string) => {
@@ -355,8 +359,17 @@ export async function scrapeOffers(): Promise<Promo[]> {
 // Helper para atraso
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function checkAndSendPromo(socket: any) {
+async function checkAndSendPromo() {
+    if (isChecking) {
+        console.log('⏳ [AutoPromo] Verificação já em andamento, ignorando nova chamada para evitar duplicidade...');
+        return;
+    }
+    isChecking = true;
+
     try {
+        const socket = globalSocket;
+        if (!socket) return;
+
         const activeGroups = await getActiveGroups();
         if (activeGroups.length === 0) return;
 
@@ -409,6 +422,10 @@ async function checkAndSendPromo(socket: any) {
                     let retries = 3;
                     while (retries > 0) {
                         try {
+                            // Sempre usar o globalSocket mais recente, caso a conexão tenha caído e reconectado durante o loop
+                            const currentSocket = globalSocket;
+                            if (!currentSocket) throw new Error('Socket indisponível (desconectado)');
+
                             if (promo.photoUrl) {
                                 let imagePayload: any = { url: promo.photoUrl };
                                 
@@ -428,9 +445,9 @@ async function checkAndSendPromo(socket: any) {
                                     console.error('Erro ao baixar imagem manualmente:', downloadErr);
                                 }
 
-                                await socket.sendMessage(group.id, { image: imagePayload, caption: message });
+                                await currentSocket.sendMessage(group.id, { image: imagePayload, caption: message });
                             } else {
-                                await socket.sendMessage(group.id, { text: message });
+                                await currentSocket.sendMessage(group.id, { text: message });
                             }
                             
                             // Pequeno delay entre o envio para grupos diferentes
@@ -468,5 +485,7 @@ async function checkAndSendPromo(socket: any) {
         }
     } catch (error) {
         console.error('Erro no auto promo:', error);
+    } finally {
+        isChecking = false;
     }
 }
