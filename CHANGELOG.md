@@ -12,6 +12,7 @@ O bot apresentava frequentemente erros de `Connection Closed` e `Precondition Re
 **Solução:**
 - Em `src/whatsapp/connection.ts` e `src/services/autoPromoService.ts`: Foram declaradas variáveis para armazenar os IDs (ex: `flushInterval`, `autoPromoInterval`) permitindo a limpeza com `clearInterval()` / `clearTimeout()` caso a conexão seja reiniciada. Isso previne o acúmulo de processos fantasma.
 - Adicionada uma função auxiliar `delay(ms)` em `autoPromoService.ts`. Agora há um pequeno delay de 1.5s entre o envio de grupos para aliviar a carga no Baileys. Se o envio falhar, há um sistema de *retry* (3 tentativas com espera de 3 segundos) para evitar perder grupos devido a falha momentânea de internet.
+- Corrigida a expressão regular de extração de cupons para ignorar falsos positivos como `de`, `desconto`, `link` ao ler linhas genéricas como "Resgate aqui seu Cupom de Desconto". Agora, se a primeira menção for genérica, o bot continua procurando pelo código real nas próximas linhas da mensagem.
 
 ## 17 de Agosto de 2026 - Correção de Imagens e Preços Automáticos (Amazon e AliExpress)
 
