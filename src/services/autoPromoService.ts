@@ -155,11 +155,11 @@ export async function scrapeOffers(): Promise<Promo[]> {
                     perfumes: {
                         positive: [
                             'perfume', 'fragrância', 'fragrancia', 'eau de parfum', 'eau de toilette', 'edp', 'edt', 
-                            'colônia', 'cosmético', 'skincare', 'maquiagem', 'batom', 'gloss', 'base', 'sérum', 'serum',
-                            'hidratante', 'creme', 'loção', 'shampoo', 'condicionador', 'protetor solar', 'sabonete',
+                            'colônia', 'cosmético', 'skincare', 'maquiagem', 'batom', 'gloss', 'sérum', 'serum',
+                            'hidratante', 'loção', 'shampoo', 'condicionador', 'protetor solar', 'sabonete',
                             'oboticário', 'boticário', 'natura', 'eudora', 'lattafa', 'afnan', 'armaf', 'dior', 'chanel',
                             'paco rabanne', 'carolina herrera', 'ysl', 'lancôme', 'lancome', 'mac', 'quem disse berenice',
-                            'vult', 'niina secrets', 'virginia', 'wepink', 'árabe', 'arabe', 'importado'
+                            'vult', 'niina secrets', 'virginia', 'wepink', 'perfume árabe', 'perfume arabe'
                         ],
                         negative: [
                             'pc', 'hardware', 'placa de vídeo', 'processador', 'tv', 'geladeira', 'fogão', 'pneu'
