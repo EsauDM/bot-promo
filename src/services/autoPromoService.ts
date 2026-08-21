@@ -265,14 +265,16 @@ async function scrapeOffers(): Promise<Promo[]> {
 
 async function checkAndSendPromo(socket: any) {
     try {
-        console.log('🔄 [AutoPromo] Buscando novas ofertas de tecnologia e hardware...');
+        const activeGroups = await getActiveGroups();
+        if (activeGroups.length === 0) return;
+
+        const activeNiches = [...new Set(activeGroups.map(g => g.niche))].join(', ');
+        console.log(`🔄 [AutoPromo] Buscando novas ofertas para os nichos ativos: [${activeNiches}]...`);
         
         const promos = await scrapeOffers();
         if (promos.length === 0) return;
 
         const db = await getDb();
-        const activeGroups = await getActiveGroups();
-        if (activeGroups.length === 0) return;
 
         const sentCounts: Record<string, { amazon: number, ali: number, shopee: number }> = {};
 
@@ -305,7 +307,7 @@ async function checkAndSendPromo(socket: any) {
                 const message = await generateAffiliateMessage(promo.link, promo.title, promo.oldPrice, promo.price, promo.coupon, promo.instructions, promo.secondaryLink);
                 if (!message) continue;
 
-                console.log(`🚀 [AutoPromo] Disparando nova oferta: ${promo.title || 'Oferta'}`);
+                console.log(`🚀 [AutoPromo] Disparando nova oferta [Nicho: ${promo.niche || 'geral'}]: ${promo.title || 'Oferta'}`);
                 
                 for (const group of activeGroups) {
                     if (group.niche !== promo.niche && group.niche !== 'geral') {
