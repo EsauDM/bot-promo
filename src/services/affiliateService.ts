@@ -35,11 +35,20 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                 let targetUrl = link;
                 
                 if (link.includes('/e/') || link.includes('a.aliexpress.com') || link.includes('s.click.aliexpress.com') || link.includes('ali.ski')) {
-                    const response = await fetch(link, { redirect: 'manual' });
-                    targetUrl = response.headers.get('location') || link;
-                    if (targetUrl.includes('/e/') || targetUrl.includes('a.aliexpress.com') || targetUrl.includes('s.click.aliexpress.com')) {
-                        const response2 = await fetch(targetUrl, { redirect: 'manual' });
-                        targetUrl = response2.headers.get('location') || targetUrl;
+                    // Se for um deep link, extrai a URL alvo de dentro dele em vez de tentar dar fetch
+                    if (link.includes('deep_link.htm') && link.includes('dl_target_url=')) {
+                        const deepLinkUrl = new URL(link);
+                        const innerUrl = deepLinkUrl.searchParams.get('dl_target_url');
+                        if (innerUrl) {
+                            targetUrl = innerUrl;
+                        }
+                    } else {
+                        const response = await fetch(link, { redirect: 'manual' });
+                        targetUrl = response.headers.get('location') || link;
+                        if (targetUrl.includes('/e/') || targetUrl.includes('a.aliexpress.com') || targetUrl.includes('s.click.aliexpress.com')) {
+                            const response2 = await fetch(targetUrl, { redirect: 'manual' });
+                            targetUrl = response2.headers.get('location') || targetUrl;
+                        }
                     }
                 }
 
@@ -57,6 +66,7 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                 urlObj.searchParams.delete('utm_source');
                 urlObj.searchParams.delete('utm_medium');
                 urlObj.searchParams.delete('utm_campaign');
+                urlObj.searchParams.delete('utm');
                 
                 const cleanTargetUrl = urlObj.toString();
 

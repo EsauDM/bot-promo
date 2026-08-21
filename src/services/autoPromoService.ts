@@ -242,6 +242,8 @@ export async function scrapeOffers(): Promise<Promo[]> {
                         // Extrai as instruções de compra (Filtro para ignorar ad de outros canais)
                         let instructions;
                         const adKeywords = ['t.me', 'grupo', 'nerdofertas', 'ofertas', 'inscreva', 'link'];
+                        const instructionKeywords = ['resgate', 'aplique', 'cupom', 'frete', 'desconto', 'app', 'aplicativo', 'pix', 'parcela', 'carrinho', 'finalizar', 'moeda'];
+                        const ignoreKeywords = ['obg', 'obrigado', 'valeu', 'crédito', 'credito', 'botdoafiliado'];
                         
                         if (lines.length > 1) {
                             for (let j = 1; j < lines.length; j++) {
@@ -251,11 +253,13 @@ export async function scrapeOffers(): Promise<Promo[]> {
 
                                 const lowLine = cleanLine.toLowerCase();
                                 const isAd = adKeywords.some(ad => lowLine.includes(ad));
+                                const shouldIgnore = ignoreKeywords.some(ig => lowLine.includes(ig));
+                                const hasInstructionKeyword = instructionKeywords.some(ik => lowLine.includes(ik));
                                 
                                 // Não pega linhas que tenham preço, link, cupom ou propagandas
-                                if (!lowLine.includes('r$') && !lowLine.includes('http') && !lowLine.includes('cupom') && !isAd && !lowLine.match(/shope\.ee|shopee\.com|amzn\.to|amazon\.com|link\.amazon|aliexpress\.com|ali\.ski|meli\.la|mercadolivre\.com\.br/)) {
-                                    // Ignora linhas inúteis genéricas
-                                    if (cleanLine.length > 3) {
+                                if (!lowLine.includes('r$') && !lowLine.includes('http') && !lowLine.includes('cupom') && !isAd && !shouldIgnore && !lowLine.match(/shope\.ee|shopee\.com|amzn\.to|amazon\.com|link\.amazon|aliexpress\.com|ali\.ski|meli\.la|mercadolivre\.com\.br/)) {
+                                    // Pega a linha apenas se tiver palavras-chave de instrução ou se for curta o suficiente para ser um passo, mas grande o bastante pra ter sentido
+                                    if (cleanLine.length > 5 && (hasInstructionKeyword || cleanLine.length < 100)) {
                                         instructions = cleanLine;
                                         break;
                                     }
