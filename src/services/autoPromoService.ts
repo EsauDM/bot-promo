@@ -14,6 +14,10 @@ const TELEGRAM_CHANNELS = [
     'https://t.me/s/TioBalaOfertas',
     'https://t.me/s/DicasPC',
     'https://t.me/s/ofertas_gamer',
+    'https://t.me/s/promocoeshardware',
+    'https://t.me/s/setupgamer',
+    'https://t.me/s/promos_pichau',
+    'https://t.me/s/ofertas_kabum',
     
     // Canais Gigantes Genéricos
     'https://t.me/s/pelando',
@@ -23,6 +27,10 @@ const TELEGRAM_CHANNELS = [
     'https://t.me/s/QualyPromo',
     'https://t.me/s/promosninjas',
     'https://t.me/s/PromocoeseOfertas',
+    'https://t.me/s/promocoesdehoje',
+    'https://t.me/s/ofertasdodia',
+    'https://t.me/s/promo_imperdiveis',
+    'https://t.me/s/boletando',
     
     // Focados em AliExpress e Amazon
     'https://t.me/s/achados_ali',
@@ -31,6 +39,7 @@ const TELEGRAM_CHANNELS = [
     'https://t.me/s/aliexpressbr_oficial',
     'https://t.me/s/cupons_ali',
     'https://t.me/s/promos_amazon_br',
+    'https://t.me/s/achados_amazon_br',
     
     // Focados em Shopee
     'https://t.me/s/achadinhos_shopee_brasil',
@@ -41,6 +50,16 @@ const TELEGRAM_CHANNELS = [
     'https://t.me/s/achadosdashopee',
     'https://t.me/s/shopee_promocoes',
     'https://t.me/s/shopee_brasil',
+    'https://t.me/s/shopeeachados',
+    'https://t.me/s/achadosshopeedodia',
+    
+    // Beleza, Perfumes e Cosméticos
+    'https://t.me/s/promosdeperfumes',
+    'https://t.me/s/ofertasmaquiagem',
+    'https://t.me/s/promosbeleza',
+    'https://t.me/s/perfumesimportados',
+    'https://t.me/s/achadinhosdebeleza',
+    'https://t.me/s/dicas_de_beleza_ofertas',
     
     // Novas Fontes Massivas (Hardware, Ali, Amazon e Gerais)
     'https://t.me/s/hardware_ofertas',
@@ -59,7 +78,9 @@ const TELEGRAM_CHANNELS = [
     'https://t.me/s/promos_online',
     'https://t.me/s/tecnologia_ofertas',
     'https://t.me/s/gamer_ofertas',
-    'https://t.me/s/promosbr'
+    'https://t.me/s/promosbr',
+    'https://t.me/s/achados_do_dia_br',
+    'https://t.me/s/promocoes_relampago_br'
 ];
 
 export async function initAutoPromo(socket: any) {
