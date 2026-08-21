@@ -299,9 +299,17 @@ export async function scrapeOffers(): Promise<Promo[]> {
 
                         // Extrai cupom
                         let coupon;
-                        const couponMatch = msgHtml.match(/cupom:?\s*([A-Za-z0-9]+)/i);
-                        if (couponMatch) {
-                            coupon = couponMatch[1];
+                        for (const line of lines) {
+                            const cleanLine = stripHtml(decodeHtml(line));
+                            const match = cleanLine.match(/cupom(?:[ \t]+de(?:[ \t]+desconto)?)?[ \t]*:?[ \t]*([A-Za-z0-9]+)/i);
+                            if (match) {
+                                const extracted = match[1];
+                                const invalidWords = ['de', 'desconto', 'valido', 'válido', 'para', 'na', 'no', 'o', 'a', 'e', 'aqui', 'pelo', 'clicando', 'link', 'abaixo', 'agora', 'site', 'app', 'aplicativo', 'frete', 'grátis', 'gratis', 'especial'];
+                                if (!invalidWords.includes(extracted.toLowerCase())) {
+                                    coupon = extracted;
+                                    break;
+                                }
+                            }
                         }
 
                         // Extrai as instruções de compra (Filtro para ignorar ad de outros canais)
