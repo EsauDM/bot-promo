@@ -69,7 +69,16 @@ export async function initAutoPromo(socket: any) {
     setTimeout(() => checkAndSendPromo(socket), 15000);
 }
 
-const decodeHtml = (text: string) => text.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#036;/g, '$');
+const decodeHtml = (text: string) => {
+    return text
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(Number(dec)))
+        .replace(/&#x([0-9a-f]+);/gi, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
+};
 
 interface Promo {
     link: string;
