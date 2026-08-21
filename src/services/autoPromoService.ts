@@ -221,16 +221,24 @@ export async function scrapeOffers(): Promise<Promo[]> {
                     continue; 
                 }
 
-                if (lowerHtml.includes('amzn.to') || lowerHtml.includes('amazon.com') || lowerHtml.includes('link.amazon') || lowerHtml.includes('aliexpress.com') || lowerHtml.includes('ali.ski') || lowerHtml.includes('mercadolivre.com.br') || lowerHtml.includes('meli.la') || lowerHtml.includes('shopee.com.br') || lowerHtml.includes('shope.ee') || lowerHtml.includes('s.shopee.com.br')) {
+                const hasAmazon = !!process.env.AFFILIATE_TAG;
+                const hasShopee = !!process.env.SHOPEE_AFFILIATE_ID;
+                const hasAli = !!process.env.ALIEXPRESS_KEY || (!!process.env.ALIEXPRESS_APP_KEY && !!process.env.ALIEXPRESS_APP_SECRET);
+
+                const dynamicAllowedDomains: string[] = [];
+                if (hasAmazon) dynamicAllowedDomains.push('amzn.to', 'amazon.com', 'link.amazon');
+                if (hasShopee) dynamicAllowedDomains.push('shopee.com.br', 'shope.ee', 's.shopee.com.br');
+                if (hasAli) dynamicAllowedDomains.push('aliexpress.com', 'ali.ski');
+
+                if (dynamicAllowedDomains.some(domain => lowerHtml.includes(domain))) {
                     const allUrls = [...msgHtml.matchAll(/href="(https:\/\/[^"]+)"/g)].map(m => m[1]);
                     
                     // Filtra links que são imagens, widgets da amazon ou links de outros grupos
-                    const allowedDomains = ['amzn.to', 'amazon.com', 'link.amazon', 'aliexpress.com', 'ali.ski', 'mercadolivre.com.br', 'meli.la', 'shopee.com.br', 'shope.ee', 's.shopee.com.br'];
                     const validUrls = allUrls.filter(url => 
                         !url.includes('telegra.ph') && 
                         !url.includes('amazon-adsystem.com') && 
                         !url.includes('t.me') &&
-                        allowedDomains.some(domain => url.includes(domain))
+                        dynamicAllowedDomains.some(domain => url.includes(domain))
                     );
 
                     if (validUrls.length > 0) {
