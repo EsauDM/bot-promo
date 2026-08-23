@@ -249,7 +249,7 @@ export async function scrapeOffers(): Promise<Promo[]> {
                 const hasAli = !!process.env.ALIEXPRESS_KEY || (!!process.env.ALIEXPRESS_APP_KEY && !!process.env.ALIEXPRESS_APP_SECRET);
 
                 const dynamicAllowedDomains: string[] = [];
-                if (hasAmazon) dynamicAllowedDomains.push('amzn.to', 'amazon.com', 'link.amazon', 'amzlinks.in');
+                if (hasAmazon) dynamicAllowedDomains.push('amzn.to', 'amazon.com', 'link.amazon', 'amzlinks.in', 'amzn.divulgador.link');
                 if (hasShopee) dynamicAllowedDomains.push('shopee.com.br', 'shope.ee', 's.shopee.com.br');
                 if (hasAli) dynamicAllowedDomains.push('aliexpress.com', 'ali.ski');
 
@@ -276,16 +276,16 @@ export async function scrapeOffers(): Promise<Promo[]> {
                         
                         const decodedMsgHtml = decodeHtml(msgHtml);
 
-                        // Extrai o preço (ex: R$ 1.200,00)
-                        const priceMatch = decodedMsgHtml.match(/R\$\s*[\d\.,]+/i);
-                        const price = priceMatch ? priceMatch[0] : undefined;
+                        // Extrai o preço (ex: R$ 1.200,00 ou POR 89,16)
+                        const priceMatch = decodedMsgHtml.match(/(?:R\$|Por)\s*([\d\.,]+)/i);
+                        const price = priceMatch ? 'R$ ' + priceMatch[1] : undefined;
 
                         // Pega a linha original que continha o preço (para ver se tinha um "De: " ou "Por: ")
                         let oldPrice;
-                        if (price && decodedMsgHtml.includes('De:')) {
-                            const oldPriceMatch = decodedMsgHtml.match(/De:\s*R\$\s*[\d\.,]+/i);
+                        if (price && decodedMsgHtml.match(/De:?\s*(?:R\$)?\s*[\d\.,]+/i)) {
+                            const oldPriceMatch = decodedMsgHtml.match(/De:?\s*(?:R\$)?\s*([\d\.,]+)/i);
                             if (oldPriceMatch) {
-                                oldPrice = oldPriceMatch[0];
+                                oldPrice = 'De: R$ ' + oldPriceMatch[1];
                             }
                         }
 
