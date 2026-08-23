@@ -3,6 +3,14 @@ import { getDb } from '../database/db';
 import { getActiveGroups } from '../database/groupRepository';
 
 const TELEGRAM_CHANNELS = [
+    
+    // Perfumes e Beleza Feminina (Adicionados agora!)
+    'https://t.me/s/achados_beleza',
+    'https://t.me/s/achadinhosdebeleza',
+    'https://t.me/s/makeup',
+    'https://t.me/s/loucaspormaquiagem',
+    'https://t.me/s/achadinhos_femininos',
+    'https://t.me/s/dicasdapatroa',
     // Beleza, Perfumes Árabes e Cosméticos (Adicionados para suprir a demanda)
     'https://t.me/s/HomemCheiroso',
     'https://t.me/s/homemcheirosoreviews',
