@@ -301,6 +301,39 @@ export async function scrapeOffers(): Promise<Promo[]> {
                                 oldPrice = 'De: R$ ' + oldPriceMatch[1];
                             }
                         }
+                        
+                        // Se oldPrice for igual ao price (erro do canal) ou não existir, e houver % de desconto, recalcular
+                        if (price) {
+                            const rawPriceStr = priceMatch![1].replace(/\./g, '').replace(',', '.');
+                            const currentPriceVal: number = parseFloat(rawPriceStr);
+                            const oldPriceVal: number = oldPrice ? parseFloat((oldPrice as string).replace('De: R$ ', '').replace(/\./g, '').replace(',', '.')) : 0;
+                            
+                            if (!oldPrice || currentPriceVal === oldPriceVal) {
+                                const discountMatch = decodedMsgHtml.match(/(\d+)%\s*(?:de\s*desconto|off|mais barato|mais em conta)?\b/i);
+                                let discountPct: number = 0;
+                                
+                                if (discountMatch) {
+                                    if (discountMatch[0].toLowerCase().match(/desconto|off/)) {
+                                        discountPct = parseInt(discountMatch[1]);
+                                    } else {
+                                        const nearText = decodedMsgHtml.substring(Math.max(0, discountMatch.index! - 15), discountMatch.index! + 15).toLowerCase();
+                                        if (!nearText.includes('algodão') && !nearText.includes('original') && !nearText.includes('poliéster')) {
+                                            discountPct = parseInt(discountMatch[1]);
+                                        }
+                                    }
+                                }
+                                
+                                if (discountPct > 0 && discountPct < 100) {
+                                    if (!isNaN(currentPriceVal)) {
+                                        const calculatedOld: number = currentPriceVal / (1 - (discountPct / 100));
+                                        const formattedOld: string = calculatedOld.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                        oldPrice = 'De: R$ ' + formattedOld;
+                                    }
+                                } else if (currentPriceVal === oldPriceVal) {
+                                    oldPrice = undefined;
+                                }
+                            }
+                        }
 
                         // Função para limpar tags HTML
                         const stripHtml = (text: string) => text.replace(/<[^>]*>?/gm, '').trim();
