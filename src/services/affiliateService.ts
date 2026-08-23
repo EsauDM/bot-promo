@@ -143,9 +143,11 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                         if (data.urls && data.urls[0] && data.urls[0].short_url) {
                             convertedLink = data.urls[0].short_url;
                         } else {
+                            console.error('🚨 [MERCADO LIVRE] Falha ao gerar link (Produto inválido ou Cookie Expirou). Resposta:', JSON.stringify(data));
                             convertedLink = cleanTargetUrl;
                         }
                     } else {
+                        console.error(`🚨 [MERCADO LIVRE] SESSÃO DESLOGADA OU ERRO NA API (Status: ${res.status}). É necessário atualizar os Cookies no .env!`);
                         convertedLink = cleanTargetUrl;
                     }
                 } else {
