@@ -7,6 +7,17 @@ export function extractLink(text: string): string | null {
     return matches ? matches[0] : null;
 }
 
+export async function shortenLink(longUrl: string): Promise<string> {
+    try {
+        const shortRes = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+        if (shortRes.ok) {
+            const shortUrl = await shortRes.text();
+            if (shortUrl.startsWith('http')) return shortUrl;
+        }
+    } catch (e) {}
+    return longUrl;
+}
+
 export async function generateAffiliateMessage(originalLink: string, customTitle?: string, oldPrice?: string, newPrice?: string, coupon?: string, instructions?: string, secondaryLink?: string): Promise<string> {
     const affiliateTag = process.env.AFFILIATE_TAG || 'minhatag-20';
     let title = customTitle ? customTitle.trim() : "SUPER OFERTA DETECTADA!";
@@ -76,10 +87,12 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                         convertedLink = res.data.aliexpress_affiliate_link_generate_response.resp_result.result.promotion_links[0].promotion_link;
                     } else {
                         console.log('⚠️ [AliExpress API] Link incompatível. Aplicando Plano B (Deep Link Seguro)...');
-                        convertedLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
+                        const longLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
+                        convertedLink = await shortenLink(longLink);
                     }
                 } else {
-                    convertedLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
+                    const longLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
+                    convertedLink = await shortenLink(longLink);
                 }
             } catch (e) { console.error('Erro na conversão do AliExpress:', e); }
         } else if (link.includes('mercadolivre.com.br') || link.includes('meli.la')) {
@@ -117,7 +130,8 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                 urlObj.searchParams.delete('utm_campaign');
                 
                 if (shopeeId) {
-                     convertedLink = `https://shopee.com.br/universal-link?redir=${encodeURIComponent(urlObj.toString())}&smtt=0.0.9&aff_id=${shopeeId}&utm_source=an_${shopeeId}&utm_medium=affiliates`;
+                     const longLink = `https://shopee.com.br/universal-link?redir=${encodeURIComponent(urlObj.toString())}&smtt=0.0.9&aff_id=${shopeeId}&utm_source=an_${shopeeId}&utm_medium=affiliates`;
+                     convertedLink = await shortenLink(longLink);
                 } else {
                      convertedLink = urlObj.toString();
                 }
