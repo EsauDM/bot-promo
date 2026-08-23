@@ -96,10 +96,34 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
         } else if (link.includes('mercadolivre.com.br') || link.includes('meli.la')) {
             try {
                 let targetUrl = link;
-                if (link.includes('meli.la')) {
-                     const response = await fetch(link, { redirect: 'manual' });
-                     targetUrl = response.headers.get('location') || link;
+                if (link.includes('meli.la') || link.includes('/social/')) {
+                    // Step 1: Resolve shortlink to /social/ link (if meli.la)
+                    if (link.includes('meli.la')) {
+                        const response = await fetch(link, { redirect: 'manual' });
+                        targetUrl = response.headers.get('location') || link;
+                    }
+
+                    // Step 2: Fetch the /social/ page HTML to extract the raw product/item ID
+                    const mlCookie = process.env.ML_COOKIE || '';
+                    const htmlResponse = await fetch(targetUrl, {
+                        headers: {
+                            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                            'cookie': mlCookie
+                        }
+                    });
+                    const text = await htmlResponse.text();
+                    
+                    const productIdMatch = text.match(/"product_id"\s*:\s*"([^"]+)"/);
+                    const itemIdMatch = text.match(/"item_id"\s*:\s*"([^"]+)"/);
+
+                    if (productIdMatch && productIdMatch[1] && productIdMatch[1] !== 'NOT_APPLY' && productIdMatch[1].length > 0) {
+                        targetUrl = `https://www.mercadolivre.com.br/p/${productIdMatch[1]}`;
+                    } else if (itemIdMatch && itemIdMatch[1] && itemIdMatch[1] !== 'NOT_APPLY' && itemIdMatch[1].length > 0) {
+                        targetUrl = `https://produto.mercadolivre.com.br/${itemIdMatch[1].replace('MLB', 'MLB-')}`;
+                    }
                 }
+
                 const urlObj = new URL(targetUrl);
                 urlObj.searchParams.delete('matt_tool');
                 urlObj.searchParams.delete('matt_word');
