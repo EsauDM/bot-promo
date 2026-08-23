@@ -324,6 +324,19 @@ export async function scrapeOffers(): Promise<Promo[]> {
                             title = decodeHtml(stripHtml(lines[0]));
                             titleIndex = 0;
                         }
+                        
+                        if (title) {
+                            title = title.replace(/https?:\/\/[^\s]+/ig, '').trim();
+                            title = title.replace(/^(Dê|De) uma olhada em\s*/i, '');
+                            title = title.replace(/\s*Compre na Shopee agora!?/i, '');
+                            title = title.trim();
+                            if (title.endsWith('.')) {
+                                title = title.substring(0, title.length - 1).trim();
+                            }
+                            if (title.length > 0) {
+                                title = title.charAt(0).toUpperCase() + title.slice(1);
+                            }
+                        }
 
                         // Extrai cupom
                         let coupon;
