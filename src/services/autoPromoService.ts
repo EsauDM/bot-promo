@@ -135,7 +135,12 @@ export async function scrapeOffers(): Promise<Promo[]> {
     
     for (const channelUrl of TELEGRAM_CHANNELS) {
         try {
-            const response = await fetch(channelUrl);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            
+            const response = await fetch(channelUrl, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            
             if (!response.ok) continue;
 
             const html = await response.text();
@@ -348,8 +353,12 @@ export async function scrapeOffers(): Promise<Promo[]> {
                     }
                 }
             }
-        } catch (error) {
-            console.error(`Erro ao buscar ofertas de ${channelUrl}:`, error);
+        } catch (error: any) {
+            if (error.name === 'AbortError' || error.code === 'ETIMEDOUT' || (error.message && error.message.includes('fetch failed'))) {
+                console.log(`⚠️ [AutoPromo] Timeout/Falha de rede ao buscar ${channelUrl}, ignorando...`);
+            } else {
+                console.error(`Erro ao buscar ofertas de ${channelUrl}:`, error);
+            }
         }
     }
     
@@ -445,7 +454,16 @@ async function checkAndSendPromo() {
                                     console.error('Erro ao baixar imagem manualmente:', downloadErr);
                                 }
 
-                                await currentSocket.sendMessage(group.id, { image: imagePayload, caption: message });
+                                try {
+                                    await currentSocket.sendMessage(group.id, { image: imagePayload, caption: message });
+                                } catch (mediaErr: any) {
+                                    if (mediaErr?.output?.statusCode === 428 || mediaErr?.message?.includes('Closed')) {
+                                        console.log(`⚠️ Falha de mídia (428) no grupo ${group.id}. Tentando fallback sem imagem...`);
+                                        await currentSocket.sendMessage(group.id, { text: message });
+                                    } else {
+                                        throw mediaErr;
+                                    }
+                                }
                             } else {
                                 await currentSocket.sendMessage(group.id, { text: message });
                             }
