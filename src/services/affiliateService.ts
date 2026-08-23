@@ -87,12 +87,10 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                         convertedLink = res.data.aliexpress_affiliate_link_generate_response.resp_result.result.promotion_links[0].promotion_link;
                     } else {
                         console.log('⚠️ [AliExpress API] Link incompatível. Aplicando Plano B (Deep Link Seguro)...');
-                        const longLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
-                        convertedLink = await shortenLink(longLink);
+                        convertedLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
                     }
                 } else {
-                    const longLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
-                    convertedLink = await shortenLink(longLink);
+                    convertedLink = `https://s.click.aliexpress.com/deep_link.htm?aff_short_key=${process.env.ALIEXPRESS_KEY || '_c39LG19l'}&dl_target_url=${encodeURIComponent(cleanTargetUrl)}`;
                 }
             } catch (e) { console.error('Erro na conversão do AliExpress:', e); }
         } else if (link.includes('mercadolivre.com.br') || link.includes('meli.la')) {
