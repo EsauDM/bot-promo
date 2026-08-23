@@ -293,10 +293,10 @@ export async function scrapeOffers(): Promise<Promo[]> {
                         const priceMatch = decodedMsgHtml.match(/(?:R\$|Por)\s*([\d\.,]+)/i);
                         const price = priceMatch ? 'R$ ' + priceMatch[1] : undefined;
 
-                        // Pega a linha original que continha o preço (para ver se tinha um "De: " ou "Por: ")
+                        // Pega a linha original que continha o preo (para ver se tinha um "De: " ou "Por: ")
                         let oldPrice;
-                        if (price && decodedMsgHtml.match(/De:?\s*(?:R\$)?\s*[\d\.,]+/i)) {
-                            const oldPriceMatch = decodedMsgHtml.match(/De:?\s*(?:R\$)?\s*([\d\.,]+)/i);
+                        if (price) {
+                            const oldPriceMatch = decodedMsgHtml.match(/(?<!cupom.*?)(?<!desconto.*?)\bDe:?\s*(?:R\$)?\s*([\d\.,]+)/i);
                             if (oldPriceMatch) {
                                 oldPrice = 'De: R$ ' + oldPriceMatch[1];
                             }
@@ -306,9 +306,15 @@ export async function scrapeOffers(): Promise<Promo[]> {
                         if (price) {
                             const rawPriceStr = priceMatch![1].replace(/\./g, '').replace(',', '.');
                             const currentPriceVal: number = parseFloat(rawPriceStr);
-                            const oldPriceVal: number = oldPrice ? parseFloat((oldPrice as string).replace('De: R$ ', '').replace(/\./g, '').replace(',', '.')) : 0;
+                            let oldPriceVal: number = oldPrice ? parseFloat((oldPrice as string).replace('De: R$ ', '').replace(/\./g, '').replace(',', '.')) : 0;
                             
-                            if (!oldPrice || currentPriceVal === oldPriceVal) {
+                            // Se oldPrice for menor ou igual ao preço atual, foi um falso positivo (ex: "desconto de R$ 10") ou erro do publicador
+                            if (oldPrice && oldPriceVal <= currentPriceVal) {
+                                oldPrice = undefined;
+                                oldPriceVal = 0;
+                            }
+                            
+                            if (!oldPrice) {
                                 const discountMatch = decodedMsgHtml.match(/(\d+)%\s*(?:de\s*desconto|off|mais barato|mais em conta)?\b/i);
                                 let discountPct: number = 0;
                                 
