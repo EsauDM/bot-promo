@@ -3,90 +3,83 @@ import { getDb } from '../database/db';
 import { getActiveGroups } from '../database/groupRepository';
 
 const TELEGRAM_CHANNELS = [
+    // Beleza, Perfumes Árabes e Cosméticos (Adicionados para suprir a demanda)
+    'https://t.me/s/HomemCheiroso',
+    'https://t.me/s/homemcheirosoreviews',
+    'https://t.me/s/promoscosmeticos',
+    'https://t.me/s/natura_ofertas',
+    'https://t.me/s/ofertasmachomoda',
+    'https://t.me/s/cupomonline',
+
     // Canais focados em Hardware e Gamer
     'https://t.me/s/nerdofertas',
-    'https://t.me/s/promosadrenaline',
-    'https://t.me/s/pcbuildbr',
-    'https://t.me/s/ofertas_pc_gamer',
-    'https://t.me/s/PromosGamerBR',
+    
+    
+    
+    
     'https://t.me/s/BenchPromos',
-    'https://t.me/s/gatunodeofertas',
-    'https://t.me/s/TioBalaOfertas',
+    
+    
     'https://t.me/s/DicasPC',
     'https://t.me/s/ofertas_gamer',
-    'https://t.me/s/promocoeshardware',
-    'https://t.me/s/setupgamer',
-    'https://t.me/s/promos_pichau',
-    'https://t.me/s/ofertas_kabum',
+    
+    
+    
+    
     
     // Canais Gigantes Genéricos
-    'https://t.me/s/pelando',
+    
     'https://t.me/s/promobit',
     'https://t.me/s/canaltech_ofertas',
-    'https://t.me/s/ofertastecnoblog',
-    'https://t.me/s/QualyPromo',
+    
+    
     'https://t.me/s/promosninjas',
     'https://t.me/s/PromocoeseOfertas',
-    'https://t.me/s/promocoesdehoje',
+    
     'https://t.me/s/ofertasdodia',
     'https://t.me/s/promo_imperdiveis',
     'https://t.me/s/boletando',
     
     // Focados em AliExpress e Amazon
-    'https://t.me/s/achados_ali',
-    'https://t.me/s/promoaliexpressbrasil',
+    
+    
     'https://t.me/s/ofertas_amazon_brasil',
     'https://t.me/s/aliexpressbr_oficial',
     'https://t.me/s/cupons_ali',
-    'https://t.me/s/promos_amazon_br',
-    'https://t.me/s/achados_amazon_br',
+    
+    
     
     // Focados em Shopee
     'https://t.me/s/achadinhos_shopee_brasil',
     'https://t.me/s/shopee_promos_br',
-    'https://t.me/s/ofertas_shopee_br',
-    'https://t.me/s/promo_shopee_br',
-    'https://t.me/s/shopeebroficial',
-    'https://t.me/s/achadosdashopee',
-    'https://t.me/s/shopee_promocoes',
-    'https://t.me/s/shopee_brasil',
-    'https://t.me/s/shopeeachados',
-    'https://t.me/s/achadosshopeedodia',
     
-    // Beleza, Perfumes e Cosméticos
-    'https://t.me/s/promosdeperfumes',
-    'https://t.me/s/ofertasmaquiagem',
-    'https://t.me/s/promosbeleza',
-    'https://t.me/s/perfumesimportados',
-    'https://t.me/s/achadinhosdebeleza',
-    'https://t.me/s/dicas_de_beleza_ofertas',
-    'https://t.me/s/garotasaoferta',
-    'https://t.me/s/promosdamaquiagem',
-    'https://t.me/s/oboticariopromos',
-    'https://t.me/s/naturapromos',
-    'https://t.me/s/clubedaspatroas',
-    'https://t.me/s/beleza_na_web_ofertas',
-    'https://t.me/s/dicas_de_skincare',
+    
+    
+    'https://t.me/s/achadosdashopee',
+    
+    
+    
+    
     
     // Novas Fontes Massivas (Hardware, Ali, Amazon e Gerais)
-    'https://t.me/s/hardware_ofertas',
-    'https://t.me/s/BoleteirosHardware',
-    'https://t.me/s/Promos_Da_China',
-    'https://t.me/s/importabrasil',
+    
+    
+    
+    
     'https://t.me/s/ofertas_amazon_br',
-    'https://t.me/s/promos_do_dia',
+    
     'https://t.me/s/melhores_promocoes',
     'https://t.me/s/ofertas_e_cupons',
     'https://t.me/s/garimpando_ofertas',
-    'https://t.me/s/aliexpress_promos_br',
-    'https://t.me/s/descontos_br',
-    'https://t.me/s/guia_de_ofertas',
-    'https://t.me/s/economiza_brasil',
-    'https://t.me/s/promos_online',
-    'https://t.me/s/tecnologia_ofertas',
-    'https://t.me/s/gamer_ofertas',
+    
+    
+    
+    
+    
+    
+    
     'https://t.me/s/promosbr',
-    'https://t.me/s/achados_do_dia_br',
+    
     'https://t.me/s/promocoes_relampago_br'
 ];
 
