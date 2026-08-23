@@ -307,6 +307,7 @@ export async function scrapeOffers(): Promise<Promo[]> {
 
                         // Extrai título (ignora chamadas de clickbait que normalmente estão em TUDO MAIÚSCULO e ignora instruções)
                         let title;
+                        let titleIndex = 0;
                         const lines = msgHtml.split(/<br\s*\/?>/i);
                         for (let i = 0; i < lines.length; i++) {
                             const cleanLine = decodeHtml(stripHtml(lines[i]));
@@ -315,11 +316,13 @@ export async function scrapeOffers(): Promise<Promo[]> {
                             
                             if (cleanLine.length > 5 && cleanLine !== cleanLine.toUpperCase() && !cleanLine.includes('R$') && !cleanLine.includes('http') && !isInstruction) {
                                 title = cleanLine;
+                                titleIndex = i;
                                 break;
                             }
                         }
                         if (!title && lines.length > 0) {
                             title = decodeHtml(stripHtml(lines[0]));
+                            titleIndex = 0;
                         }
 
                         // Extrai cupom
@@ -344,7 +347,7 @@ export async function scrapeOffers(): Promise<Promo[]> {
                         const ignoreKeywords = ['obg', 'obrigado', 'valeu', 'crédito', 'credito', 'botdoafiliado'];
                         
                         if (lines.length > 1) {
-                            for (let j = 1; j < lines.length; j++) {
+                            for (let j = titleIndex + 1; j < lines.length; j++) {
                                 // Limpa tags HTML da linha para não vazar código de emoji
                                 const cleanLine = stripHtml(decodeHtml(lines[j]));
                                 if (!cleanLine) continue;
