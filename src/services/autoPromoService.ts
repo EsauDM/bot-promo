@@ -261,6 +261,9 @@ export async function scrapeOffers(): Promise<Promo[]> {
                 if (hasAmazon) dynamicAllowedDomains.push('amzn.to', 'amazon.com', 'link.amazon', 'amzlinks.in', 'amzn.divulgador.link');
                 if (hasShopee) dynamicAllowedDomains.push('shopee.com.br', 'shope.ee', 's.shopee.com.br');
                 if (hasAli) dynamicAllowedDomains.push('aliexpress.com', 'ali.ski');
+                
+                const hasML = !!process.env.ML_COOKIE && !!process.env.ML_CSRF && !!process.env.ML_TAG;
+                if (hasML) dynamicAllowedDomains.push('mercadolivre.com.br', 'meli.la');
 
                 if (dynamicAllowedDomains.some(domain => lowerHtml.includes(domain))) {
                     const allUrls = [...msgHtml.matchAll(/href="(https:\/\/[^"]+)"/g)].map(m => m[1]);

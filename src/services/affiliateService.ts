@@ -109,7 +109,48 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                 urlObj.searchParams.delete('utm_source');
                 urlObj.searchParams.delete('utm_medium');
                 urlObj.searchParams.delete('utm_campaign');
-                convertedLink = urlObj.toString();
+                const cleanTargetUrl = urlObj.toString();
+
+                const mlCookie = process.env.ML_COOKIE;
+                const mlCsrf = process.env.ML_CSRF;
+                const mlTag = process.env.ML_TAG;
+
+                if (mlCookie && mlCsrf && mlTag) {
+                    const payload = {
+                        "tag": mlTag,
+                        "type": "product",
+                        "urls": [cleanTargetUrl],
+                        "extraCommission": "false"
+                    };
+
+                    const res = await fetch('https://www.mercadolivre.com.br/affiliate-program/api/v2/affiliates/createLink', {
+                        method: 'POST',
+                        headers: {
+                            'accept': 'application/json, text/plain, */*',
+                            'accept-language': 'pt-BR,pt;q=0.8',
+                            'content-type': 'application/json',
+                            'cookie': mlCookie,
+                            'origin': 'https://www.mercadolivre.com.br',
+                            'referer': 'https://www.mercadolivre.com.br/afiliados/hub',
+                            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36',
+                            'x-csrf-token': mlCsrf
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.urls && data.urls[0] && data.urls[0].short_url) {
+                            convertedLink = data.urls[0].short_url;
+                        } else {
+                            convertedLink = cleanTargetUrl;
+                        }
+                    } else {
+                        convertedLink = cleanTargetUrl;
+                    }
+                } else {
+                    convertedLink = cleanTargetUrl;
+                }
             } catch(e) {}
         } else if (link.includes('shopee.com.br') || link.includes('shope.ee')) {
             let targetUrl = link;
