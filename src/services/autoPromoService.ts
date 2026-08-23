@@ -500,7 +500,9 @@ async function checkAndSendPromo() {
                 console.log(`🚀 [AutoPromo] Disparando nova oferta [Nicho: ${promo.niche || 'geral'}]: ${promo.title || 'Oferta'}`);
                 
                 for (const group of activeGroups) {
-                    if (group.niche !== 'geral' && promo.niche !== 'geral' && group.niche !== promo.niche) {
+                    // Grupos "geral" recebem ofertas de todos os nichos.
+                    // Grupos específicos (ex: tech) recebem APENAS ofertas do seu próprio nicho.
+                    if (group.niche !== 'geral' && group.niche !== promo.niche) {
                         continue;
                     }
                     
