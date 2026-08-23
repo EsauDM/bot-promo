@@ -88,7 +88,7 @@ const TELEGRAM_CHANNELS = [
     
     'https://t.me/s/promosbr',
     
-    'https://t.me/s/promocoes_relampago_br'
+    'https://t.me/s/promocoes_relampago_br',
     'https://t.me/s/promosdeperfumes',
     'https://t.me/s/perfumesimportados',
     'https://t.me/s/ofertasperfumes',
