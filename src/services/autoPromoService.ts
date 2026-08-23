@@ -224,7 +224,12 @@ export async function scrapeOffers(): Promise<Promo[]> {
                             'cupom shopee', 'cupom aliexpress', 'cupom ali', 'cupom amazon', 'cupom mercado livre', 
                             'cupom mercadolivre', 'cupom de desconto', 'off em r$', 'off em', 'novo cupom', 'cupom liberado',
                             'desconto no app', 'qualquer produto', 'todo o site', 'toda a loja', 'cupom fiscal',
-                            'cupom válido', 'cupom valido'
+                            'cupom válido', 'cupom valido',
+                            // Roupas, calçados e moda
+                            'tênis', 'tenis', 'moletom', 'moletons', 'camiseta', 'camisetas', 'camisa', 'camisas', 'calça', 'calca', 'calças', 'bermuda',
+                            'shorts', 'jaqueta', 'casaco', 'blusa', 'vestido', 'saia', 'sapato', 'sandália',
+                            'sandalia', 'chinelo', 'bota', 'coturno', 'roupa', 'roupas', 'moda', 'qix', 'adidas', 'nike', 'puma',
+                            'mizuno', 'asics', 'olympikus', 'calvin klein', 'tommy hilfiger', 'lacoste', 'reserva'
                         ],
                         negative: []
                     }
@@ -236,10 +241,10 @@ export async function scrapeOffers(): Promise<Promo[]> {
                 for (const [nicheName, rules] of Object.entries(nichesConfig)) {
                     const isPositive = (rules as any).positive.some((keyword: string) => {
                         const kw = keyword.trim();
-                        if (['pc', 'hd', 'tv', 'rx', 'gtx', 'rtx', 'iphone', 'macbook', 'ipad', 'ssd', 'cama', 'wap', 'pneu', 'som', 'edp', 'edt', 'ysl', 'vult', 'natura', 'mesa', 'serra', 'solda', 'amd'].includes(kw)) {
+                        if (['pc', 'hd', 'tv', 'rx', 'gtx', 'rtx', 'iphone', 'macbook', 'ipad', 'ssd', 'cama', 'wap', 'pneu', 'som', 'edp', 'edt', 'ysl', 'vult', 'natura', 'mesa', 'serra', 'solda', 'amd', 'moda', 'roupa', 'qix'].includes(kw)) {
                             return new RegExp(`\\b${kw}\\b`, 'i').test(lowerHtml);
                         }
-                        return lowerHtml.includes(keyword);
+                        return lowerHtml.includes(kw);
                     });
                     
                     const isIgnored = (rules as any).negative.some((keyword: string) => lowerHtml.includes(keyword));
