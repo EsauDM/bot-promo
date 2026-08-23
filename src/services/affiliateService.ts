@@ -208,43 +208,50 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
     let affiliateLink = await convertLink(originalLink);
     let affiliateSecondaryLink = secondaryLink ? await convertLink(secondaryLink) : null;
     
-    // Montando o modelo requisitado
-    let message = `${title}\n\n`;
+    let message = '';
     
     if (instructions) {
-        message += `${instructions}\n\n`;
+        message += `${instructions}\n`;
     }
+    
+    message += `${title}\n\n`;
     
     let priceToShow = newPrice || oldPrice;
     if (priceToShow) {
-        if (priceToShow.toLowerCase().includes("r$")) {
-            message += `💵  ${priceToShow}\n`;
+        // Se houver preço antigo e preço novo
+        if (oldPrice && newPrice) {
+            const oldP = oldPrice.toLowerCase().includes("r$") ? oldPrice : `R$ ${oldPrice}`;
+            const newP = newPrice.toLowerCase().includes("r$") ? newPrice : `R$ ${newPrice}`;
+            message += `De ${oldP.replace('De: ', '')} por ${newP} 🦸🏻‍♂️\n`;
         } else {
-            message += `💵  R$ ${priceToShow}\n`;
+            const p = priceToShow.toLowerCase().includes("r$") ? priceToShow : `R$ ${priceToShow}`;
+            message += `Por ${p} 🦸🏻‍♂️\n`;
         }
     } else {
-        message += `💵  Preço Especial no link!\n`;
+        message += `Preço Especial no link! 🦸🏻‍♂️\n`;
     }
 
     if (coupon) {
-        message += `🎟️  Cupom: ${coupon}\n`;
+        message += `Cupom: ${coupon} 🎟️\n`;
     }
+
+    message += `\n`; // Quebra de linha antes do link
 
     if (affiliateSecondaryLink) {
         if (affiliateLink.includes('coin-index') || affiliateSecondaryLink.includes('coin-index')) {
             const coinLink = affiliateLink.includes('coin-index') ? affiliateLink : affiliateSecondaryLink;
             const directLink = affiliateLink.includes('coin-index') ? affiliateSecondaryLink : affiliateLink;
-            message += `🪙 Link com moedas 👇\n${coinLink}\n\n`;
-            message += `🔗 Link direto 👇\n${directLink}\n\n`;
+            message += `Link com moedas 🪙\n${coinLink}\n\n`;
+            message += `Link direto 👇\n${directLink}\n\n`;
         } else {
-            message += `🔗 Opção 1: ${affiliateLink}\n`;
-            message += `🔗 Opção 2: ${affiliateSecondaryLink}\n\n`;
+            message += `${affiliateLink}\n`;
+            message += `${affiliateSecondaryLink}\n\n`;
         }
     } else {
         if (affiliateLink.includes('coin-index')) {
-            message += `🪙 Link com moedas 👇\n${affiliateLink}\n\n`;
+            message += `Link com moedas 🪙\n${affiliateLink}\n\n`;
         } else {
-            message += `🔗 Link direto 👇\n${affiliateLink}\n\n`;
+            message += `${affiliateLink}\n\n`;
         }
     }
 
