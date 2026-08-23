@@ -217,6 +217,15 @@ export async function scrapeOffers(): Promise<Promo[]> {
                         negative: [
                             'pc', 'hardware', 'placa de vídeo', 'processador', 'tv', 'geladeira', 'fogão', 'pneu', 'absorvente', 'fralda', 'papel higiênico', 'lenço', 'saco', 'lixo'
                         ]
+                    },
+                    geral: {
+                        positive: [
+                            'cupom shopee', 'cupom aliexpress', 'cupom ali', 'cupom amazon', 'cupom mercado livre', 
+                            'cupom mercadolivre', 'cupom de desconto', 'off em r$', 'off em', 'novo cupom', 'cupom liberado',
+                            'desconto no app', 'qualquer produto', 'todo o site', 'toda a loja', 'cupom fiscal',
+                            'cupom válido', 'cupom valido'
+                        ],
+                        negative: []
                     }
                 };
 
@@ -292,12 +301,15 @@ export async function scrapeOffers(): Promise<Promo[]> {
                         // Função para limpar tags HTML
                         const stripHtml = (text: string) => text.replace(/<[^>]*>?/gm, '').trim();
 
-                        // Extrai título (ignora chamadas de clickbait que normalmente estão em TUDO MAIÚSCULO)
+                        // Extrai título (ignora chamadas de clickbait que normalmente estão em TUDO MAIÚSCULO e ignora instruções)
                         let title;
                         const lines = msgHtml.split(/<br\s*\/?>/i);
                         for (let i = 0; i < lines.length; i++) {
                             const cleanLine = decodeHtml(stripHtml(lines[i]));
-                            if (cleanLine.length > 5 && cleanLine !== cleanLine.toUpperCase() && !cleanLine.includes('R$') && !cleanLine.includes('http')) {
+                            const lowLine = cleanLine.toLowerCase();
+                            const isInstruction = ['resgate', 'aplique', 'frete', 'desconto', 'app', 'aplicativo', 'pix', 'parcela', 'carrinho', 'finalizar', 'compre', 'clique', 'link'].some(ik => lowLine.includes(ik));
+                            
+                            if (cleanLine.length > 5 && cleanLine !== cleanLine.toUpperCase() && !cleanLine.includes('R$') && !cleanLine.includes('http') && !isInstruction) {
                                 title = cleanLine;
                                 break;
                             }
@@ -424,7 +436,7 @@ async function checkAndSendPromo() {
                 console.log(`🚀 [AutoPromo] Disparando nova oferta [Nicho: ${promo.niche || 'geral'}]: ${promo.title || 'Oferta'}`);
                 
                 for (const group of activeGroups) {
-                    if (group.niche !== promo.niche && group.niche !== 'geral') {
+                    if (group.niche !== 'geral' && promo.niche !== 'geral' && group.niche !== promo.niche) {
                         continue;
                     }
                     
