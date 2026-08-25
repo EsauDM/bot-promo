@@ -1,5 +1,13 @@
 # Logs de Atualização e Correções
 
+## 25 de Agosto de 2026 - Correção de Mismatch de Produtos no Mercado Livre
+
+**Problema:**
+Links curtos (`meli.la`) enviados nos canais do Telegram que estavam expirados ou esgotados redirecionavam para uma página de erro no Mercado Livre, a qual exibia recomendações de produtos no final da página. O robô acabava lendo o código (ID) do primeiro produto recomendado na página (ex: teclado Asus) e gerava um novo link afiliado para esse produto errado, enquanto o título continuava sendo o produto original (ex: Attack Shark).
+
+**Solução:**
+- A lógica em `src/services/affiliateService.ts` foi aprimorada. Agora, ao analisar uma página `/social/`, o robô verifica se a página está retornando um "estado vazio" (`ui-empty-state`) e recorta apenas a área segura do HTML para a busca do `product_id`, ignorando sumariamente a grade de recomendações (`polycards`). Isso previne completamente a geração de links trocados.
+
 ## 25 de Agosto de 2026 - Substituição do Encurtador de Links
 
 **Problema:**

@@ -114,13 +114,22 @@ export async function generateAffiliateMessage(originalLink: string, customTitle
                     });
                     const text = await htmlResponse.text();
                     
-                    const productIdMatch = text.match(/"product_id"\s*:\s*"([^"]+)"/);
-                    const itemIdMatch = text.match(/"item_id"\s*:\s*"([^"]+)"/);
+                    if (text.includes('ui-empty-state')) {
+                        console.log('🚨 [MERCADO LIVRE] Link social retornou página de erro/indisponível. Ignorando extração de ID falso.');
+                        // Deixa a targetUrl como a URL social original. A API pode rejeitar, mas não enviaremos link errado.
+                    } else {
+                        // Buscar apenas no bloco principal e não nos polycards (recomendações)
+                        const polycardIndex = text.indexOf('"polycards"');
+                        const safeText = polycardIndex !== -1 ? text.substring(0, polycardIndex) : text;
 
-                    if (productIdMatch && productIdMatch[1] && productIdMatch[1] !== 'NOT_APPLY' && productIdMatch[1].length > 0) {
-                        targetUrl = `https://www.mercadolivre.com.br/p/${productIdMatch[1]}`;
-                    } else if (itemIdMatch && itemIdMatch[1] && itemIdMatch[1] !== 'NOT_APPLY' && itemIdMatch[1].length > 0) {
-                        targetUrl = `https://produto.mercadolivre.com.br/${itemIdMatch[1].replace('MLB', 'MLB-')}`;
+                        const productIdMatch = safeText.match(/"product_id"\s*:\s*"([^"]+)"/);
+                        const itemIdMatch = safeText.match(/"item_id"\s*:\s*"([^"]+)"/);
+
+                        if (productIdMatch && productIdMatch[1] && productIdMatch[1] !== 'NOT_APPLY' && productIdMatch[1].length > 0) {
+                            targetUrl = `https://www.mercadolivre.com.br/p/${productIdMatch[1]}`;
+                        } else if (itemIdMatch && itemIdMatch[1] && itemIdMatch[1] !== 'NOT_APPLY' && itemIdMatch[1].length > 0) {
+                            targetUrl = `https://produto.mercadolivre.com.br/${itemIdMatch[1].replace('MLB', 'MLB-')}`;
+                        }
                     }
                 }
 
