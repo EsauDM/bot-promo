@@ -9,10 +9,14 @@ export function extractLink(text: string): string | null {
 
 export async function shortenLink(longUrl: string): Promise<string> {
     try {
-        const shortRes = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+        const shortRes = await fetch('https://cleanuri.com/api/v1/shorten', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'url=' + encodeURIComponent(longUrl)
+        });
         if (shortRes.ok) {
-            const shortUrl = await shortRes.text();
-            if (shortUrl.startsWith('http')) return shortUrl;
+            const data = await shortRes.json();
+            if (data.result_url) return data.result_url;
         }
     } catch (e) {}
     return longUrl;

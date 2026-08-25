@@ -14,7 +14,7 @@ Links curtos (`meli.la`) enviados nos canais do Telegram que estavam expirados o
 Os links de afiliados, especialmente os da Shopee, ao passarem pelo encurtador `is.gd`, em alguns casos geravam uma página intermediária (interstitial) exigindo que o usuário clicasse novamente para ir para a página do produto, além de ocasionais falhas de API.
 
 **Solução:**
-- Substituído o uso da API do `is.gd` para a API do `tinyurl` no método `shortenLink` (`src/services/affiliateService.ts`), garantindo redirecionamento direto sem telas intermediárias para os usuários.
+- A API pública legada do TinyURL passou a mostrar uma tela de aviso sobre a depreciação do endpoint para quem acessa. Para contornar de forma definitiva, o encurtador foi trocado para o `cleanuri.com`, que gera os links de redirecionamento direto (301) sem nenhuma barreira ou necessidade de chave de autenticação.
 
 ## 21 de Agosto de 2026 - Correção de "Connection Closed" e Vazamento de Memória
 
