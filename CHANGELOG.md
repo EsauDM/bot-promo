@@ -1,5 +1,13 @@
 # Logs de Atualização e Correções
 
+## 25 de Agosto de 2026 - Substituição do Encurtador de Links
+
+**Problema:**
+Os links de afiliados, especialmente os da Shopee, ao passarem pelo encurtador `is.gd`, em alguns casos geravam uma página intermediária (interstitial) exigindo que o usuário clicasse novamente para ir para a página do produto, além de ocasionais falhas de API.
+
+**Solução:**
+- Substituído o uso da API do `is.gd` para a API do `tinyurl` no método `shortenLink` (`src/services/affiliateService.ts`), garantindo redirecionamento direto sem telas intermediárias para os usuários.
+
 ## 21 de Agosto de 2026 - Correção de "Connection Closed" e Vazamento de Memória
 
 **Problema:**

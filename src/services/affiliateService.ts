@@ -9,7 +9,7 @@ export function extractLink(text: string): string | null {
 
 export async function shortenLink(longUrl: string): Promise<string> {
     try {
-        const shortRes = await fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(longUrl)}`);
+        const shortRes = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
         if (shortRes.ok) {
             const shortUrl = await shortRes.text();
             if (shortUrl.startsWith('http')) return shortUrl;
